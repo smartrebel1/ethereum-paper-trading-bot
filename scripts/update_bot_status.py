@@ -29,6 +29,8 @@ os.environ["ENABLE_LIVE_TRADING"] = "false"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from sqlalchemy import desc, select  # noqa: E402
+
 from app.ai.gemini import observe_latest  # noqa: E402
 from app.candles.ingestor import DataIngestor  # noqa: E402
 from app.common.safety import enforce_paper_only  # noqa: E402
