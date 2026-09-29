@@ -98,7 +98,16 @@ def live_paper_page() -> HTMLResponse:
           ];
           el.innerHTML=
             "<div class='grid'>"+
-            cards.map(x=>"<div class='card'><div class='label'>"+x[0]+"</div><div class='value'>"+x[1]+"</div></div>").join("")+
+            cards
+              .map(
+                x =>
+                  "<div class='card'><div class='label'>"+
+                  x[0]+
+                  "</div><div class='value'>"+
+                  x[1]+
+                  "</div></div>"
+              )
+              .join("")+
             "</div><div class='card' style='margin-top:10px'><pre>"+
             JSON.stringify(s.last_signal||{},null,2)+
             "</pre></div>";
