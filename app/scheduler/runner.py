@@ -134,13 +134,11 @@ class PaperScheduler:
         This is important when the database was already populated by the
         historical replay: the scheduler must not replay that history again.
         """
-        row = session.execute(
-            select(SchedulerRun)
-            .where(
-                SchedulerRun.name == RUN_NAME,
-                SchedulerRun.symbol if False else True,  # kept out of SQL; see filter below
-            )
-        ).scalars().all()
+        row = (
+            session.execute(select(SchedulerRun).where(SchedulerRun.name == RUN_NAME))
+            .scalars()
+            .all()
+        )
         successful = [r for r in row if r.status == "SUCCESS"]
         for candidate in reversed(successful):
             value = candidate.details.get("last_processed_open_time")
