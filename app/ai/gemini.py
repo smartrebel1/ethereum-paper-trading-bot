@@ -2,6 +2,7 @@
 from __future__ import annotations
 import hashlib
 import json
+import random
 import time
 from datetime import UTC, datetime
 from typing import Any
@@ -70,14 +71,28 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
     parsed: dict[str, Any] = {}
     error: str | None = None
     try:
-        response = httpx.post(
-            GEMINI_URL.format(model=settings.gemini_model),
-            headers={"x-goog-api-key": settings.gemini_api_key},
-            json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}},
-            timeout=settings.ai_timeout_seconds,
-        )
-        response.raise_for_status()
-        raw = response.json()
+        url = GEMINI_URL.format(model=settings.gemini_model)
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"},
+        }
+        last_response = None
+        for attempt in range(4):
+            response = httpx.post(
+                url,
+                headers={"x-goog-api-key": settings.gemini_api_key},
+                json=payload,
+                timeout=settings.ai_timeout_seconds,
+            )
+            last_response = response
+            if response.status_code not in {408, 429, 500, 502, 503, 504} or attempt == 3:
+                break
+            delay = min(8.0, 1.0 * (2 ** attempt)) + random.uniform(0, 0.5)
+            print(f"Gemini transient HTTP {response.status_code}; retrying in {delay:.1f}s ({attempt + 1}/3)")
+            time.sleep(delay)
+        assert last_response is not None
+        last_response.raise_for_status()
+        raw = last_response.json()
         candidates = raw.get("candidates") or []
         parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
         response_text = "".join(str(p.get("text", "")) for p in parts if isinstance(p, dict))
