@@ -35,8 +35,8 @@ from app.ledger import ledger
 from app.models.candle import Candle
 from app.models.order import Order
 from app.models.position import Position
-from app.models.signal import Signal
 from app.models.scheduler_run import SchedulerRun
+from app.models.signal import Signal
 from app.models.system_event import SystemEvent
 from app.models.trade import Trade
 from app.portfolio import accounting
