@@ -81,7 +81,7 @@ button {
 }
 .foot { margin-top: 26px; color: #6f8399; font-size: 13px; text-align: center; }
 .refresh-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; color:var(--muted); font-size:14px; }
-.refresh-dot { width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--green); margin-left:6px; }
+.chart-wrap { margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--card-2); }\n.chart-wrap svg { display:block; width:100%; height:auto; }\n.chart-caption { color:var(--muted); font-size:13px; margin-top:6px; }\n.refresh-dot { width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--green); margin-left:6px; }
 code { background: var(--card-2); padding: 2px 6px; border-radius: 6px; font-size: 14px; }
 """
 
@@ -323,6 +323,46 @@ def _data_status(summary: DashboardSummary) -> str:
     return f'<div class="card"><h2>البيانات اللي البوت بيقرا منها</h2>{rows}{examples}</div>'
 
 
+def _monitor(summary: DashboardSummary) -> str:
+    status = summary.scheduler_status
+    status_class = "green" if status["status"] in {"RUNNING", "SUCCESS"} else "red"
+    points = summary.equity_curve
+    chart = ""
+    if len(points) >= 2:
+        values = [float(point["equity"]) for point in points]
+        low, high = min(values), max(values)
+        span = max(high - low, 0.01)
+        coords = []
+        width, height = 900, 230
+        for index, value in enumerate(values):
+            x = 20 + (index / (len(values) - 1)) * (width - 40)
+            y = 20 + (1 - ((value - low) / span)) * (height - 40)
+            coords.append(f"{x:.1f},{y:.1f}")
+        chart = (
+            '<div class="chart-wrap"><svg viewBox="0 0 900 230" role="img" '
+            'aria-label="منحنى تطور رأس المال">'
+            '<polyline fill="none" stroke="var(--blue)" stroke-width="3" points="'
+            + " ".join(coords)
+            + '"/></svg></div>'
+            f'<div class="chart-caption">من {values[0]:,.2f} دولار إلى {values[-1]:,.2f} دولار</div>'
+        )
+    else:
+        chart = '<p class="muted">لسه مفيش صفقات كفاية لعرض منحنى رأس المال.</p>'
+    rows = _rows(
+        [
+            ("حالة الـ Scheduler", status["status_ar"], status_class),
+            ("آخر دورة", status["last_run"], ""),
+            ("الشمعات المعالجة في آخر دورة", str(status["candles_processed"]), ""),
+        ]
+    )
+    return (
+        '<div class="card"><h2>حالة البوت ومنحنى رأس المال</h2>'
+        + rows
+        + chart
+        + "</div>"
+    )
+
+
 def _strategy(summary: DashboardSummary) -> str:
     rules = "".join(f"<li>{escape(rule)}</li>" for rule in summary.strategy["rules"])
     return (
@@ -380,6 +420,7 @@ def render_dashboard(summary: DashboardSummary) -> str:
   </div>
 
   <div class="grid two">
+    {_monitor(summary)}
     {_statistics(summary)}
     {_data_status(summary)}
   </div>
