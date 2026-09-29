@@ -1,4 +1,4 @@
-name: Update Bot Status
+name: Hourly Paper Trading
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - "BOT_STATUS.md"
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "17 * * * *"
 
 permissions:
   contents: write
