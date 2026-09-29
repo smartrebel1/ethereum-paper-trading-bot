@@ -30,6 +30,7 @@ from app.common.safety import enforce_paper_only
 from app.config.settings import get_settings
 from app.config.strategy_config import load_frozen_strategy_config
 from app.market_data.binance import BinanceRESTProvider
+from app.common.time_utils import next_open_time
 from app.strategy.ema_atr import EMAAtrStrategy
 
 
