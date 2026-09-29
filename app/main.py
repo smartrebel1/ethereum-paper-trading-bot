@@ -182,9 +182,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="ETHUSDT Paper Trading Engine",
         version=SOFTWARE_VERSION,
         description=(
-            "Deterministic **paper-only** trading research system (phase 1). "
-            "Live trading is not implemented: there is no live provider, and the "
-            "database refuses to store a non-paper execution."
+            "Paper-only trading research system with a real-time market-data paper path. "
+            "There is still no live order provider, and the database refuses to store "
+            "a non-paper execution."
         ),
         lifespan=lifespan,
     )
