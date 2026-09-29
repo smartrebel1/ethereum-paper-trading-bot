@@ -10,6 +10,7 @@ No Binance credentials are used and no orders are ever sent.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -212,6 +213,9 @@ def render_status(
     open_position = summary.open_position
     pending = summary.pending_order
 
+    def dec(value: object) -> Decimal:
+        return Decimal(str(value))
+
     def value(item: object) -> str:
         return "—" if item is None else str(item)
 
@@ -259,6 +263,27 @@ def render_status(
             f"| زمن الاستجابة | {ai_observation.latency_ms or '—'} ms |"
         )
 
+    hourly_state = None
+    hourly_state_path = ROOT / "runtime" / "hourly_paper_state.json"
+    if hourly_state_path.exists():
+        try:
+            hourly_state = json.loads(hourly_state_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            hourly_state = None
+
+    if hourly_state:
+        hourly_position = hourly_state.get("position")
+        hourly_equity = dec(hourly_state.get("cash", "0"))
+        if hourly_position and hourly_state.get("last_price") is not None:
+            hourly_equity += dec(hourly_position["quantity"]) * dec(hourly_state["last_price"])
+        hourly_pnl = hourly_equity - dec(hourly_state.get("starting_balance", "0"))
+        hourly_position_text = "OPEN" if hourly_position else "NONE"
+        hourly_signal = hourly_state.get("last_signal") or {}
+    else:
+        hourly_equity = hourly_pnl = Decimal(0)
+        hourly_position_text = "UNAVAILABLE"
+        hourly_signal = {}
+
     text = f"""# 🤖 Ethereum Paper Trading — BOT STATUS
 
 > صفحة متابعة بسيطة للبوت — البيانات تتحدث تلقائيًا من GitHub Actions.
@@ -281,6 +306,22 @@ def render_status(
 | **السعر الحالي (Live Snapshot)** | **{current_price_text}** |
 | وقت جلب السعر الحالي | {current_price_time_text} |
 | آخر شمعة 4H مكتملة | {value(d['to'])} |
+
+## ⏱️ Hourly Paper Engine
+
+| البند | القيمة |
+|---|---|
+| الحالة | {hourly_state.get("status", "غير متاح") if hourly_state else "غير متاح"} |
+| Equity | {hourly_equity:.2f} دولار |
+| P&L | {hourly_pnl:+.2f} دولار |
+| الصفقات المغلقة | {len(hourly_state.get("trades", [])) if hourly_state else 0} |
+| الصفقة المفتوحة | {hourly_position_text} |
+| آخر 4H تمت معالجتها | {hourly_state.get("last_processed_4h", "غير متاح") if hourly_state else "غير متاح"} |
+| آخر دورة | {format_cairo(datetime.fromisoformat(hourly_state["updated_at"])) if hourly_state and hourly_state.get("updated_at") else "غير متاح"} |
+| آخر Signal | {hourly_signal.get("action", "—")} |
+| Confidence | {float(hourly_signal.get("confidence", 0)):.0%} |
+
+> **مهم:** الـHourly Engine هو المحرك الورقي الدوري الجديد. الـBaseline لا يرسل أوامر حقيقية، والـWebSocket غير مطلوب لهذه المرحلة.
 
 > **مهم:** السعر الحالي Snapshot منفصل عن محرك الـBaseline. القرار والحسابات يستخدمان الشموع المكتملة فقط.
 
