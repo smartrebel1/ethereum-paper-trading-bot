@@ -82,7 +82,7 @@ def main() -> int:
             suffix = f" - {detail}" if detail else ""
             print(f"❌ Gemini API rejected the key/request: HTTP {response.status_code}{suffix}")
         else:
-            print(f"❌ Gemini API request failed after retries: {last_error or "unknown network error"}")
+            print(f"❌ Gemini API request failed after retries: {last_error or 'unknown network error'}")
         return 1
 
     with session_scope() as session:
