@@ -7,10 +7,10 @@
   "trades": [],
   "last_processed_4h": "2026-09-29T12:00:00+00:00",
   "last_signal": null,
-  "last_price": "2684.82000000",
-  "last_price_at": "2026-09-29T18:18:21.197137+00:00",
+  "last_price": "2684.42000000",
+  "last_price_at": "2026-09-29T18:20:28.067768+00:00",
   "peak_equity": "200",
   "status": "IDLE",
-  "updated_at": "2026-09-29T18:18:21.197137+00:00",
+  "updated_at": "2026-09-29T18:20:28.067768+00:00",
   "last_error": null
 }
