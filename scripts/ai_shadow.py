@@ -42,19 +42,34 @@ def main() -> int:
 
     if args.check:
         import httpx
-        response = httpx.post(
-            GEMINI_URL.format(model=settings.gemini_model),
-            headers={"x-goog-api-key": settings.gemini_api_key},
-            json={
-                "contents": [{"parts": [{"text": "Return JSON: {\\\"ok\\\":true}"}]}],
-                "generationConfig": {"temperature": 0},
-            },
-            timeout=settings.ai_timeout_seconds,
-        )
-        if response.is_success:
-            print(f"✅ Gemini API reachable; model={settings.gemini_model}")
-            return 0
-        print(f"❌ Gemini API rejected the key/request: HTTP {response.status_code}")
+        import time
+        import random
+        url = GEMINI_URL.format(model=settings.gemini_model)
+        payload = {
+            "contents": [{"parts": [{"text": "Return JSON: {\\\"ok\\\":true}"}]}],
+            "generationConfig": {"temperature": 0},
+        }
+        for attempt in range(4):
+            response = httpx.post(
+                url,
+                headers={"x-goog-api-key": settings.gemini_api_key},
+                json=payload,
+                timeout=settings.ai_timeout_seconds,
+            )
+            if response.is_success:
+                print(f"✅ Gemini API reachable; model={settings.gemini_model}")
+                return 0
+            if response.status_code not in {408, 429, 500, 502, 503, 504} or attempt == 3:
+                break
+            delay = min(8.0, 1.0 * (2 ** attempt)) + random.uniform(0, 0.5)
+            print(f"Gemini transient HTTP {response.status_code}; retrying in {delay:.1f}s ({attempt + 1}/3)")
+            time.sleep(delay)
+        try:
+            detail = response.json().get("error", {}).get("message", "")
+        except Exception:
+            detail = ""
+        suffix = f" - {detail}" if detail else ""
+        print(f"❌ Gemini API rejected the key/request: HTTP {response.status_code}{suffix}")
         return 1
 
     with session_scope() as session:
