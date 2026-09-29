@@ -17,11 +17,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from sqlalchemy import desc, select  # noqa: E402
+
 from app.ai.gemini import GEMINI_URL, observe_latest  # noqa: E402
 from app.config.settings import get_settings  # noqa: E402
 from app.database.session import session_scope  # noqa: E402
 from app.models.candle import Candle  # noqa: E402
-from sqlalchemy import desc, select  # noqa: E402
 
 
 def main() -> int:
