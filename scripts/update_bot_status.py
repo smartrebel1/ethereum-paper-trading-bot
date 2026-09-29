@@ -32,7 +32,8 @@ from app.config.settings import get_settings  # noqa: E402
 from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
 from app.dashboard.summary import build_summary  # noqa: E402
 from app.database.session import session_scope  # noqa: E402
-from app.market_data.binance import BinanceRESTProvider  # noqa: E402
+from app.market_data.binance import BinanceError, BinanceRESTProvider  # noqa: E402
+from app.market_data.csv_archive import CSVArchiveProvider  # noqa: E402
 from app.replay_engine.engine import ReplayEngine  # noqa: E402
 
 
@@ -51,19 +52,45 @@ def reset_database() -> None:
 
 def fetch_and_ingest() -> None:
     settings = get_settings()
+    candles = []
+    rest_error: str | None = None
+
     provider = BinanceRESTProvider()
     try:
-        candles = provider.fetch_candles(
-            settings.symbol,
-            settings.timeframe,
-            include_incomplete=False,
-        )[-1000:]
+        try:
+            candles = provider.fetch_candles(
+                settings.symbol,
+                settings.timeframe,
+                include_incomplete=False,
+            )[-1000:]
+        except BinanceError as exc:
+            rest_error = str(exc)
     finally:
         provider.close()
 
+    if not candles and rest_error:
+        print(f"[status] REST unavailable: {rest_error}")
+        print("[status] Falling back to official Binance Vision archive.")
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "fetch_binance_archive.py"),
+                "--symbol",
+                settings.symbol,
+                "--interval",
+                settings.timeframe.value,
+                "--start-month",
+                "2023-01",
+            ],
+            cwd=ROOT,
+            check=True,
+        )
+        archive = CSVArchiveProvider(ROOT / "data" / "archive", verify_hash=True)
+        candles = archive.fetch_candles(settings.symbol, settings.timeframe.value)[-1000:]
+
     if len(candles) < settings.warmup_candles:
         raise RuntimeError(
-            f"Binance returned only {len(candles)} completed candles; "
+            f"Only {len(candles)} completed candles are available; "
             f"{settings.warmup_candles} are required for warmup."
         )
 
