@@ -186,7 +186,7 @@ Run `python scripts/run_paper_scheduler.py` on your own machine/server to keep t
 - records scheduler heartbeats in `scheduler_runs` and resumes from the last successful candle after a restart;
 - stops on a critical execution-target integrity failure instead of inventing a substitute fill.
 
-Binance documents public market-data endpoints as unauthenticated market-data APIs; this project uses them only for candles, never for order submission. citeturn2search5turn2search6
+Binance documents public market-data endpoints for market data; this project uses them only for candles, never for order submission.
 
 ## Roadmap
 
