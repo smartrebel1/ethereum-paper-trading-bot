@@ -30,6 +30,8 @@ os.environ["ENABLE_LIVE_TRADING"] = "false"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from sqlalchemy import desc, select  # noqa: E402
+
 from app.ai.gemini import observe_latest  # noqa: E402
 from app.candles.ingestor import DataIngestor  # noqa: E402
 from app.common.safety import enforce_paper_only  # noqa: E402
@@ -205,8 +207,6 @@ def render_status(
     d = summary.data_status
     decision = summary.engine_decision
     with session_scope() as ai_session:
-        from sqlalchemy import desc, select
-
         from app.models.ai_observation import AIObservation
 
         ai_observation = ai_session.execute(
