@@ -1,0 +1,41 @@
+name: Gemini Shadow Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gemini-shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ENABLE_AI_SHADOW: "true"
+      AI_PROVIDER: "gemini"
+      GEMINI_MODEL: "gemini-2.5-flash"
+      TRADING_MODE: "paper"
+      ENABLE_LIVE_TRADING: "false"
+      DATABASE_URL: "sqlite:///./data/ai_shadow.db"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --upgrade pip && pip install .
+
+      - name: Prepare database
+        run: alembic upgrade head
+
+      - name: Verify Gemini key and API
+        run: python scripts/ai_shadow.py --check
+
+      - name: Run Gemini shadow observer
+        run: python scripts/ai_shadow.py --refresh --limit 1
