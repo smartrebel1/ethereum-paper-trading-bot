@@ -16,8 +16,10 @@ import sys
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
+CAIRO_TZ = ZoneInfo("Africa/Cairo")
 DB_PATH = ROOT / "data" / "status.db"
 STATUS_PATH = ROOT / "BOT_STATUS.md"
 os.environ["DATABASE_URL"] = f"sqlite:///{DB_PATH}"
@@ -37,6 +39,11 @@ from app.database.session import session_scope  # noqa: E402
 from app.market_data.binance import BinanceError, BinanceRESTProvider  # noqa: E402
 from app.market_data.csv_archive import CSVArchiveProvider  # noqa: E402
 from app.replay_engine.engine import ReplayEngine  # noqa: E402
+
+
+
+def format_cairo(value: datetime) -> str:
+    return value.astimezone(CAIRO_TZ).strftime("%A %d %B %Y، %I:%M %p بتوقيت القاهرة")
 
 
 def reset_database() -> None:
