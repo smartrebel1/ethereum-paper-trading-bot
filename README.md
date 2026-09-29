@@ -33,6 +33,11 @@ python scripts/ingest_archive.py  # validate + store the Binance archive (idempo
 python scripts/replay.py          # replay the whole series through the paper engine
 python scripts/render_dashboard.py  # write dashboard/dashboard_ar.html (Arabic panel)
 
+# Continuous paper mode (public Binance market data; no API keys; never places orders)
+python scripts/run_paper_scheduler.py
+# one tick only:
+python scripts/run_paper_scheduler.py --once
+
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 #   dashboard : http://127.0.0.1:8000/dashboard           (Arabic, plain language)
 #   technical : http://127.0.0.1:8000/dashboard/technical (tables + audit trail)
@@ -169,6 +174,20 @@ GitHub Actions now runs on every push to `main` and every pull request targeting
 The workflow is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 It does not connect to Binance, execute trades, or require secrets.
 
+## Continuous paper mode
+
+Run `python scripts/run_paper_scheduler.py` on your own machine/server to keep the paper engine advancing as new closed candles appear. The scheduler:
+
+- polls the public Binance REST market-data endpoint only;
+- refuses incomplete candles;
+- persists validated candles idempotently;
+- rebuilds the EMA/ATR warm-up window without replaying historical side effects;
+- processes each new candle exactly once using the existing risk and paper-execution path;
+- records scheduler heartbeats in `scheduler_runs` and resumes from the last successful candle after a restart;
+- stops on a critical execution-target integrity failure instead of inventing a substitute fill.
+
+Binance documents public market-data endpoints as unauthenticated market-data APIs; this project uses them only for candles, never for order submission. citeturn2search5turn2search6
+
 ## Roadmap
 
 | Phase | Content |
@@ -180,7 +199,7 @@ It does not connect to Binance, execute trades, or require secrets.
 | 5 | Paper execution engine + order state machine + SL/TP with the target-match invariant |
 | 6 | Portfolio accounting + immutable ledger |
 | 7 | Crash recovery, idempotency, integrity monitor kill-switch |
-| 8 | Internal scheduler (never an external CI runner) |
+| **8 ✅** | Internal candle-driven continuous paper scheduler |
 | 9 | Full interactive dashboard + notifications |
 | 10 | AI shadow observer (isolated context, structurally unable to feed back) |
 | 11 | Backtest/replay engine over the stored series |
