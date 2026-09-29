@@ -92,7 +92,7 @@ def live_paper_page() -> HTMLResponse:
             ["الحالة",s.status],["السعر الحالي",s.last_price||"—"],
             ["Equity",s.equity||"—"],["P&L",s.net_pnl||"—"],
             ["Unrealized",s.unrealized_pnl||"—"],
-            ["الصفقة","مفتوحة" if false else (p?"BUY":"لا توجد")],
+            ["الصفقة",p?"OPEN":"لا توجد"],
             ["آخر شمعة 4H",s.last_closed_4h||"—"],
             ["آخر تحديث",s.updated_at||"—"]
           ];
