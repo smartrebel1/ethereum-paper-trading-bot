@@ -15,7 +15,6 @@ from __future__ import annotations
 import asyncio
 import sys
 from datetime import UTC, datetime, timedelta
-from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,11 +23,11 @@ STATE_PATH = ROOT / "runtime" / "hourly_paper_state.json"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.common.safety import enforce_paper_only
-from app.config.settings import get_settings
-from app.config.strategy_config import load_frozen_strategy_config
-from app.live_paper.engine import LivePaperState
-from app.market_data.binance import BinanceRESTProvider
+from app.common.safety import enforce_paper_only  # noqa: E402
+from app.config.settings import get_settings  # noqa: E402
+from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
+from app.live_paper.engine import LivePaperState  # noqa: E402
+from app.market_data.binance import BinanceRESTProvider  # noqa: E402
 
 
 def main() -> int:
@@ -55,7 +54,9 @@ def main() -> int:
                 f"{settings.warmup_candles} are required."
             )
 
-        current_price, current_price_at = provider.fetch_current_price(settings.symbol)
+        current_price, current_price_at = provider.fetch_current_price(
+            settings.symbol
+        )
         latest_candle = candles[-1]
         marker = latest_candle.open_time.isoformat()
 
@@ -72,7 +73,9 @@ def main() -> int:
             from app.strategy.ema_atr import EMAAtrStrategy
 
             strategy = EMAAtrStrategy(config)
-            decision = strategy.evaluate(candles[-strategy.warmup_candles():])
+            decision = strategy.evaluate(
+                candles[-strategy.warmup_candles() :]
+            )
             state.last_closed_4h = marker
             state.last_signal = {
                 "candle_open_time": marker,
