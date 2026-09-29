@@ -26,14 +26,14 @@ os.environ["ENABLE_LIVE_TRADING"] = "false"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.common.safety import enforce_paper_only
-from app.config.settings import get_settings
-from app.candles.ingestor import DataIngestor
-from app.database.session import session_scope
-from app.market_data.binance import BinanceRESTProvider
-from app.replay_engine.engine import ReplayEngine
-from app.config.strategy_config import load_frozen_strategy_config
-from app.dashboard.summary import build_summary
+from app.candles.ingestor import DataIngestor  # noqa: E402
+from app.common.safety import enforce_paper_only  # noqa: E402
+from app.config.settings import get_settings  # noqa: E402
+from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
+from app.dashboard.summary import build_summary  # noqa: E402
+from app.database.session import session_scope  # noqa: E402
+from app.market_data.binance import BinanceRESTProvider  # noqa: E402
+from app.replay_engine.engine import ReplayEngine  # noqa: E402
 
 
 def reset_database() -> None:
