@@ -7,7 +7,7 @@ on:
       - "BOT_STATUS.md"
   workflow_dispatch:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
@@ -31,19 +31,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-
       - name: Install project
         run: python -m pip install --upgrade pip && pip install .
-
       - name: Build status from Binance public market data
         run: python scripts/update_bot_status.py
-
       - name: Commit BOT_STATUS.md
         run: |
           git config user.name "github-actions[bot]"
