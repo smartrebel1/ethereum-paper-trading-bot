@@ -137,7 +137,10 @@ class LivePaperState:
     def unrealized_pnl(self) -> Decimal:
         if self.last_price is None or self.position is None:
             return Decimal(0)
-        return (self.last_price - self.position.entry_price) * self.position.quantity - self.position.entry_fee
+        return (
+            (self.last_price - self.position.entry_price) * self.position.quantity
+            - self.position.entry_fee
+        )
 
     @property
     def net_pnl(self) -> Decimal:
@@ -197,10 +200,11 @@ class LivePaperState:
                 handle.write("\n")
                 handle.flush()
                 os.fsync(handle.fileno())
-            os.replace(temp_name, self.path)
+            Path(temp_name).replace(self.path)
         finally:
-            if os.path.exists(temp_name):
-                os.unlink(temp_name)
+            temp_path = Path(temp_name)
+            if temp_path.exists():
+                temp_path.unlink()
 
 
 class LivePaperEngine:
