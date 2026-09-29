@@ -206,3 +206,24 @@ Binance documents public market-data endpoints for market data; this project use
 | 12 | Walk-forward / out-of-sample evaluation |
 | 13 | 15m research stream + data provenance archiving |
 | 14 | Full audit / reconciliation |
+
+
+## Cloud dashboard from mobile
+
+The repository includes a Render Blueprint in `render.yaml` for a public web dashboard plus a continuous paper-trading worker backed by PostgreSQL.
+
+### Deploy
+
+1. Open Render and create a Blueprint from this repository.
+2. Select `smartrebel1/ethereum-paper-trading-bot`.
+3. Deploy the Blueprint.
+4. After the web service is live, open:
+   `https://<your-service>.onrender.com/dashboard`
+
+The worker runs `scripts/run_cloud_worker.py`, initializes migrations, imports the public historical Binance archive when the database is empty, rebuilds paper-trading history when needed, and then runs the continuous closed-candle scheduler.
+
+**Safety:** this deployment remains paper-only. It does not accept Binance API keys and has no live-order execution path.
+
+**Important hosting note:** Render currently does not offer a free Background Worker. The Blueprint therefore uses the smallest paid worker plan for continuous scheduling; the free web service and free PostgreSQL options have separate limitations, including the free Postgres 30-day expiry. For a permanently free always-on setup, use a VM instead.
+
+See the official Render Blueprint documentation for the current deployment flow.
