@@ -119,9 +119,7 @@ class PaperScheduler:
 
     def _finish_run(self, run_id: str, status: str, details: dict[str, Any]) -> None:
         with session_scope() as session:
-            row = session.execute(
-                select(SchedulerRun).where(SchedulerRun.run_id == run_id)
-            ).scalar_one()
+            row = session.execute(select(SchedulerRun).where(SchedulerRun.run_id == run_id)).scalar_one()
             row.finished_at = datetime.now(tz=UTC)
             row.status = status
             row.candles_processed = int(details.get("candles_processed", 0))
@@ -134,9 +132,7 @@ class PaperScheduler:
         This is important when the database was already populated by the
         historical replay: the scheduler must not replay that history again.
         """
-        row = session.execute(
-            select(SchedulerRun).where(SchedulerRun.name == RUN_NAME)
-        ).scalars().all()
+        row = session.execute(select(SchedulerRun).where(SchedulerRun.name == RUN_NAME)).scalars().all()
         successful = [r for r in row if r.status == "SUCCESS"]
         for candidate in reversed(successful):
             value = candidate.details.get("last_processed_open_time")
