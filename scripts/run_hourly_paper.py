@@ -227,12 +227,15 @@ def main() -> int:
 
     completed = candles[-500:]
     last_processed = state.get("last_processed_4h")
-    new_candles = [
-        candle
-        for candle in completed
-        if last_processed is None
-        or candle.open_time.isoformat() > last_processed
-    ]
+    if last_processed is None:
+        state["last_processed_4h"] = completed[-1].open_time.isoformat()
+        new_candles = []
+    else:
+        new_candles = [
+            candle
+            for candle in completed
+            if candle.open_time.isoformat() > last_processed
+        ]
 
     for candle in new_candles:
         position = state.get("position")
