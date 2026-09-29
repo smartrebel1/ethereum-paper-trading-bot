@@ -24,8 +24,8 @@ from app.database.session import session_scope
 from app.market_data.base import MarketDataProvider
 from app.market_data.registry import build_provider
 from app.models.scheduler_run import SchedulerRun
-from app.repositories import candles as candle_repo
 from app.replay_engine.engine import ReplayEngine
+from app.repositories import candles as candle_repo
 
 logger = logging.getLogger(__name__)
 
@@ -212,7 +212,7 @@ class PaperScheduler:
                 raise SchedulerHaltedError(replay.halt_reason)
 
             last = stored[-1]
-            details = {
+            return {
                 "run_id": run_id,
                 "status": "PROCESSED",
                 "candles_processed": len(stored),
@@ -229,7 +229,6 @@ class PaperScheduler:
                 "strategy_config_hash": config.config_hash,
                 "started_at": started.isoformat(),
             }
-            return details
 
 
 def run_scheduler(
