@@ -9,6 +9,8 @@ Both are strictly read-only, and both degrade honestly before any data exists.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Depends
@@ -35,6 +37,32 @@ def _summary(session: Session) -> Any:
         starting_balance=settings.starting_balance,
     )
 
+
+
+
+LIVE_PAPER_STATE = Path(__file__).resolve().parents[2] / "data" / "live_paper_state.json"
+
+
+@router.get("/api/v1/live-paper/status")
+def live_paper_status() -> dict[str, Any]:
+    """Read-only snapshot of the persistent real-time paper trader."""
+    if not LIVE_PAPER_STATE.exists():
+        return {
+            "available": False,
+            "mode": "live-paper",
+            "message": "Real-time paper trader has not created its state file yet.",
+        }
+    try:
+        payload = json.loads(LIVE_PAPER_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {
+            "available": False,
+            "mode": "live-paper",
+            "message": f"State file unavailable: {type(exc).__name__}: {exc}",
+        }
+    payload["available"] = True
+    payload["mode"] = "live-paper"
+    return payload
 
 @router.get("/dashboard", include_in_schema=False, response_class=HTMLResponse)
 def dashboard(session: Session = Depends(get_db)) -> HTMLResponse:
