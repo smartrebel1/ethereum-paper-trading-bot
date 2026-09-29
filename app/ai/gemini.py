@@ -16,6 +16,18 @@ from app.strategy.indicators import atr, ema
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
+GEMINI_RESPONSE_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "bias": {"type": "STRING", "enum": ["buy", "sell", "neutral"]},
+        "confidence": {"type": "NUMBER"},
+        "summary_ar": {"type": "STRING"},
+        "risks_ar": {"type": "STRING"},
+    },
+    "required": ["bias", "confidence", "summary_ar", "risks_ar"],
+    "additionalProperties": False,
+}
+
 def _observation_id(symbol: str, timeframe: str, at: datetime) -> str:
     return hashlib.sha256(f"gemini|{symbol}|{timeframe}|{at.isoformat()}".encode()).hexdigest()
 
@@ -74,7 +86,11 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
         url = GEMINI_URL.format(model=settings.gemini_model)
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"},
+            "generationConfig": {
+                "temperature": 0.2,
+                "responseMimeType": "application/json",
+                "responseSchema": GEMINI_RESPONSE_SCHEMA,
+            },
         }
         last_response = None
         last_error: Exception | None = None
@@ -105,8 +121,18 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
         last_response.raise_for_status()
         raw = last_response.json()
         candidates = raw.get("candidates") or []
-        parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
+        if not candidates:
+            feedback = raw.get("promptFeedback") or {}
+            raise ValueError(f"Gemini returned no candidates; promptFeedback={feedback}")
+        candidate = candidates[0]
+        parts = candidate.get("content", {}).get("parts", [])
         response_text = "".join(str(p.get("text", "")) for p in parts if isinstance(p, dict))
+        if not response_text.strip():
+            finish_reason = candidate.get("finishReason", "UNKNOWN")
+            safety = candidate.get("safetyRatings", [])
+            raise ValueError(
+                f"Gemini returned no text; finishReason={finish_reason}; safetyRatings={safety}"
+            )
         parsed = _parse(response_text)
     except Exception as exc:
         error = str(exc)[:256]
