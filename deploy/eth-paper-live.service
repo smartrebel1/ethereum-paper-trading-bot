@@ -1,0 +1,15 @@
+[Unit]
+Description=ETHUSDT Real-Time Paper Trading Engine
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ethereum-paper-trading-bot
+ExecStart=/opt/ethereum-paper-trading-bot/.venv/bin/python /opt/ethereum-paper-trading-bot/scripts/run_live_paper.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
