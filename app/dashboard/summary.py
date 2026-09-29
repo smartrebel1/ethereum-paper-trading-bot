@@ -36,6 +36,7 @@ from app.models.candle import Candle
 from app.models.order import Order
 from app.models.position import Position
 from app.models.signal import Signal
+from app.models.scheduler_run import SchedulerRun
 from app.models.system_event import SystemEvent
 from app.models.trade import Trade
 from app.portfolio import accounting
@@ -322,6 +323,8 @@ class DashboardSummary:
     data_status: dict[str, Any]
     engine_decision: dict[str, Any]
     recent_trades: list[dict[str, Any]] = field(default_factory=list)
+    equity_curve: list[dict[str, Any]] = field(default_factory=list)
+    scheduler_status: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
@@ -415,6 +418,50 @@ def build_summary(
         .all()
     )
     last_trade = _trade_row(session, recent[0]) if recent else None
+
+    all_trades = (
+        session.execute(
+            select(Trade)
+            .where(Trade.symbol == symbol, Trade.timeframe == timeframe)
+            .order_by(Trade.exit_time)
+        )
+        .scalars()
+        .all()
+    )
+    running_equity = starting
+    equity_curve = [{"time": "البداية", "equity": float(running_equity)}]
+    for trade in all_trades:
+        running_equity += Decimal(str(trade.net_pnl))
+        equity_curve.append(
+            {"time": format_cairo(trade.exit_time).split("،")[0], "equity": float(running_equity)}
+        )
+
+    scheduler_runs = (
+        session.execute(
+            select(SchedulerRun)
+            .where(SchedulerRun.name == "ethusdt_paper")
+            .order_by(desc(SchedulerRun.started_at))
+            .limit(1)
+        )
+        .scalars()
+        .first()
+    )
+    scheduler_status = {
+        "status": "مفيش تشغيل مسجل" if scheduler_runs is None else scheduler_runs.status,
+        "status_ar": (
+            "مفيش تشغيل مسجل"
+            if scheduler_runs is None
+            else {
+                "RUNNING": "شغال",
+                "SUCCESS": "شغال — آخر دورة نجحت",
+                "FAILED": "فيه فشل",
+                "MISSED": "فيه دورة فائتة",
+                "SKIPPED": "تم تخطي الدورة",
+            }.get(scheduler_runs.status, scheduler_runs.status)
+        ),
+        "last_run": "—" if scheduler_runs is None else format_cairo(scheduler_runs.started_at),
+        "candles_processed": 0 if scheduler_runs is None else scheduler_runs.candles_processed,
+    }
 
     present = candle_repo.open_times(session, symbol, timeframe)
     gaps: list[dict[str, Any]] = []
@@ -531,6 +578,8 @@ def build_summary(
             "when": format_cairo(decision_time),
         },
         recent_trades=[_trade_row(session, trade) for trade in recent],
+        equity_curve=equity_curve,
+        scheduler_status=scheduler_status,
         notes=_notes(trades_total, gaps, fatal),
     )
 
