@@ -176,6 +176,17 @@ def run_ai_shadow() -> None:
         print(f"[status] Gemini shadow unavailable: {str(exc)[:256]}")
 
 
+def load_hourly_state() -> dict[str, object] | None:
+    state_path = ROOT / "runtime" / "hourly_paper_state.json"
+    if not state_path.exists():
+        return None
+    try:
+        import json
+        return json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def render_status(
     current_price: Decimal | None,
     current_price_at: datetime | None,
@@ -190,6 +201,7 @@ def render_status(
             now=datetime.now(tz=UTC),
         )
 
+    hourly_state = load_hourly_state()
     p = summary.portfolio
     s = summary.statistics
     d = summary.data_status
@@ -325,6 +337,20 @@ def render_status(
 
 > **مهم:** السعر الحالي Snapshot منفصل عن محرك الـBaseline. القرار والحسابات يستخدمان الشموع المكتملة فقط.
 
+## ⚡ Live Paper — دورة GitHub كل ساعة
+
+| البند | القيمة |
+|---|---|
+| حالة الدورة | {value(hourly_state.get("status")) if hourly_state else "غير متاح"} |
+| آخر دورة | {format_cairo(datetime.fromisoformat(hourly_state["updated_at"])) if hourly_state and hourly_state.get("updated_at") else "غير متاح"} |
+| السعر المستخدم في الدورة | {value(hourly_state.get("last_price")) if hourly_state else "غير متاح"} دولار |
+| Equity Live Paper | {value(hourly_state.get("equity")) if hourly_state else "غير متاح"} دولار |
+| Live Paper P&L | {value(hourly_state.get("net_pnl")) if hourly_state else "غير متاح"} دولار |
+| الصفقة الحالية | {"OPEN" if hourly_state and hourly_state.get("position") else "FLAT"} |
+| آخر شمعة 4H تمت معالجتها | {value(hourly_state.get("last_closed_4h")) if hourly_state else "غير متاح"} |
+
+> هذه الدورة تعمل كل ساعة على GitHub Actions باستخدام Binance Public API. ليست WebSocket لحظية، ولا ترسل أي أمر حقيقي.
+
 ## 💰 المحفظة
 
 | البند | القيمة |
@@ -400,7 +426,7 @@ def render_status(
 
 ## 🔄 التحديث
 
-الصفحة يتم تحديثها تلقائيًا تقريبًا كل 15 دقيقة بواسطة GitHub Actions.
+الصفحة يتم تحديثها تلقائيًا كل ساعة تقريبًا بواسطة GitHub Actions، عند الدقيقة 17 بتوقيت القاهرة.
 
 > **مهم:** الأرقام دي نتائج محاكاة وليست أموالًا أو أرباحًا حقيقية.
 """
