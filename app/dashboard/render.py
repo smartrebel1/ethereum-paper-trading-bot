@@ -80,6 +80,8 @@ button {
   padding: 8px 16px; font-size: 15px; cursor: pointer; font-family: inherit;
 }
 .foot { margin-top: 26px; color: #6f8399; font-size: 13px; text-align: center; }
+.refresh-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; color:var(--muted); font-size:14px; }
+.refresh-dot { width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--green); margin-left:6px; }
 code { background: var(--card-2); padding: 2px 6px; border-radius: 6px; font-size: 14px; }
 """
 
@@ -367,6 +369,11 @@ def render_dashboard(summary: DashboardSummary) -> str:
   {_banner(summary)}
   {_answers(summary)}
 
+  <div class="refresh-bar">
+    <span><span class="refresh-dot"></span>التحديث التلقائي كل 60 ثانية</span>
+    <button type="button" onclick="location.reload()">تحديث الآن</button>
+  </div>
+
   <div class="grid two">
     {_current(summary)}
     {_portfolio(summary)}
@@ -390,6 +397,10 @@ def render_dashboard(summary: DashboardSummary) -> str:
     بلا شبكة، بلا مفاتيح API، بلا تنفيذ حقيقي.
   </p>
 </div>
+<script>
+  // The dashboard is read-only. Reloading only asks the server for fresh stored data.
+  window.setInterval(function () { window.location.reload(); }, 60000);
+</script>
 </body>
 </html>
 """
