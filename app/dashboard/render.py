@@ -440,7 +440,7 @@ def render_dashboard(summary: DashboardSummary) -> str:
 </div>
 <script>
   // The dashboard is read-only. Reloading only asks the server for fresh stored data.
-  window.setInterval(function () { window.location.reload(); }, 60000);
+  window.setInterval(function () {{ window.location.reload(); }}, 60000);
 </script>
 </body>
 </html>
