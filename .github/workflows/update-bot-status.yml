@@ -44,7 +44,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install .
 
       - name: Run hourly live-paper cycle
-        run: python scripts/run_hourly_paper_cycle.py
+        run: python scripts/run_hourly_paper.py
 
       - name: Build BOT_STATUS from public market data
         run: python scripts/update_bot_status.py
