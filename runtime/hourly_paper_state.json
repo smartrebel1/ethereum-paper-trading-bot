@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "symbol": "ETHUSDT",
+  "starting_balance": "200",
+  "cash": "200",
+  "position": null,
+  "trades": [],
+  "last_processed_4h": "2026-09-29T12:00:00+00:00",
+  "last_signal": null,
+  "last_price": "2683.19000000",
+  "last_price_at": "2026-09-29T18:13:11.707852+00:00",
+  "peak_equity": "200",
+  "status": "RUNNING",
+  "updated_at": "2026-09-29T18:13:11.707852+00:00",
+  "last_error": null
+}
