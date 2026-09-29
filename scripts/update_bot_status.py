@@ -129,6 +129,8 @@ def fetch_and_ingest() -> tuple[Decimal | None, datetime | None]:
         report = ingestor.ingest(candles)
         print(f"[status] ingested {report.created} new candles")
 
+    return current_price, current_price_at
+
 
 def replay() -> None:
     settings = get_settings()
