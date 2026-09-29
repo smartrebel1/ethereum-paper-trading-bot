@@ -145,9 +145,11 @@ class BinanceRESTProvider(MarketDataProvider):
             return ProviderHealth(name=self.name, reachable=False, detail=f"{type(exc).__name__}: {exc}")
 
     # ----------------------------------------------------------------- helpers
-    def _request(self, params: dict[str, object]) -> list[list[object]]:
+    def _request(
+        self, path: str, params: dict[str, object]
+    ) -> list[list[object]] | dict[str, object]:
         try:
-            response = self.client.get(KLINES_PATH, params=params)
+            response = self.client.get(path, params=params)
         except Exception as exc:  # noqa: BLE001 - network layer
             raise BinanceError(f"request failed: {type(exc).__name__}: {exc}") from exc
         if response.status_code == 451:
