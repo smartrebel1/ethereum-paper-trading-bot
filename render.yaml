@@ -24,7 +24,7 @@ services:
   - type: worker
     name: ethereum-paper-scheduler
     runtime: python
-    plan: free
+    plan: 0.5c-512mb
     buildCommand: pip install .
     preDeployCommand: alembic upgrade head
     startCommand: python scripts/run_cloud_worker.py
