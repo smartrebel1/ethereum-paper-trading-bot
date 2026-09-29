@@ -31,9 +31,6 @@ jobs:
       - name: Install project
         run: python -m pip install --upgrade pip && pip install .
 
-      - name: Prepare database
-        run: alembic upgrade head
-
       - name: Load fresh public market data
         run: python scripts/update_bot_status.py
 
