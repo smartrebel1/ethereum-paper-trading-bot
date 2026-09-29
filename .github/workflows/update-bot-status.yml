@@ -16,6 +16,13 @@ jobs:
   update-status:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ENABLE_AI_SHADOW: "true"
+      AI_PROVIDER: "gemini"
+      GEMINI_MODEL: "gemini-3.5-flash"
+      TRADING_MODE: "paper"
+      ENABLE_LIVE_TRADING: "false"
 
     steps:
       - name: Checkout
