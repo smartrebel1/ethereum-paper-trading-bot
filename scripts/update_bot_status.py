@@ -14,8 +14,8 @@ import os
 import subprocess
 import sys
 from datetime import UTC, datetime
-from pathlib import Path
 from decimal import Decimal
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "data" / "status.db"
@@ -52,7 +52,7 @@ def reset_database() -> None:
     )
 
 
-def fetch_and_ingest() -> None:
+def fetch_and_ingest() -> tuple[Decimal | None, datetime | None]:
     settings = get_settings()
     candles = []
     rest_error: str | None = None
@@ -68,8 +68,13 @@ def fetch_and_ingest() -> None:
                 include_incomplete=False,
             )[-1000:]
             try:
-                current_price, current_price_at = provider.fetch_current_price(settings.symbol)
-                print(f"[status] current price={current_price} at={current_price_at.isoformat()}")
+                current_price, current_price_at = provider.fetch_current_price(
+                    settings.symbol
+                )
+                print(
+                    f"[status] current price={current_price} "
+                    f"at={current_price_at.isoformat()}"
+                )
             except BinanceError as exc:
                 print(f"[status] current price unavailable: {exc}")
         except BinanceError as exc:
@@ -161,7 +166,10 @@ def run_ai_shadow() -> None:
         print(f"[status] Gemini shadow unavailable: {str(exc)[:256]}")
 
 
-def render_status(current_price: Decimal | None, current_price_at: datetime | None) -> None:
+def render_status(
+    current_price: Decimal | None,
+    current_price_at: datetime | None,
+) -> None:
     settings = get_settings()
     with session_scope() as session:
         summary = build_summary(
@@ -198,8 +206,16 @@ def render_status(current_price: Decimal | None, current_price_at: datetime | No
     def value(item: object) -> str:
         return "—" if item is None else str(item)
 
-    current_price_text = "غير متاح" if current_price is None else f"{current_price:,.2f} دولار"
-    current_price_time_text = "غير متاح" if current_price_at is None else format_cairo(current_price_at)
+    current_price_text = (
+        "غير متاح"
+        if current_price is None
+        else f"{current_price:,.2f} دولار"
+    )
+    current_price_time_text = (
+        "غير متاح"
+        if current_price_at is None
+        else format_cairo(current_price_at)
+    )
 
     open_text = "لا توجد" if open_position is None else "نعم"
     pending_text = "لا توجد" if pending is None else "نعم"
@@ -334,7 +350,7 @@ def render_status(current_price: Decimal | None, current_price_at: datetime | No
 
 ## 🔄 التحديث
 
-الصفحة يتم تحديثها تلقائيًا تقريبًا كل ساعة بواسطة GitHub Actions.
+الصفحة يتم تحديثها تلقائيًا تقريبًا كل 15 دقيقة بواسطة GitHub Actions.
 
 > **مهم:** الأرقام دي نتائج محاكاة وليست أموالًا أو أرباحًا حقيقية.
 """
