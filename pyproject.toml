@@ -17,6 +17,7 @@ dependencies = [
     "alembic>=1.13",
     "python-dotenv>=1.0",
     "httpx>=0.27",
+    "psycopg[binary]>=3.2",
 ]
 
 [project.optional-dependencies]
