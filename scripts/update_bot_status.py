@@ -26,12 +26,12 @@ os.environ["ENABLE_LIVE_TRADING"] = "false"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from app.ai.gemini import observe_latest  # noqa: E402
 from app.candles.ingestor import DataIngestor  # noqa: E402
 from app.common.safety import enforce_paper_only  # noqa: E402
 from app.config.settings import get_settings  # noqa: E402
 from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
 from app.dashboard.summary import build_summary  # noqa: E402
-from app.ai.gemini import observe_latest  # noqa: E402
 from app.database.session import session_scope  # noqa: E402
 from app.market_data.binance import BinanceError, BinanceRESTProvider  # noqa: E402
 from app.market_data.csv_archive import CSVArchiveProvider  # noqa: E402
@@ -143,13 +143,15 @@ def run_ai_shadow() -> None:
         with session_scope() as session:
             observation = observe_latest(session, settings, refresh=True)
             print(
-                f"[status] Gemini shadow: bias={observation.parsed_summary.get('bias', 'neutral')} "
+                f"[status] Gemini shadow: bias="
+                f"{observation.parsed_summary.get('bias', 'neutral')} "
                 f"confidence={observation.parsed_summary.get('confidence', 0):.2f}"
             )
     except Exception as exc:
         # Gemini is observational only: a provider outage must never block
         # the baseline paper-trading status page.
         print(f"[status] Gemini shadow unavailable: {str(exc)[:256]}")
+
 
 def render_status() -> None:
     settings = get_settings()
@@ -168,7 +170,9 @@ def render_status() -> None:
     decision = summary.engine_decision
     with session_scope() as ai_session:
         from sqlalchemy import desc, select
+
         from app.models.ai_observation import AIObservation
+
         ai_observation = ai_session.execute(
             select(AIObservation)
             .where(
@@ -193,6 +197,30 @@ def render_status() -> None:
             f"نعم — الدخول {open_position['entry_price']} دولار، "
             f"السعر الحالي {open_position['current_price']} دولار، "
             f"النتيجة الحالية {open_position['profit_now']}"
+        )
+
+    if ai_observation is None:
+        ai_status = (
+            "**الحالة:** غير مفعّل\n\n"
+            "لا يوجد تحليل Gemini محفوظ في هذه الدورة."
+        )
+    elif ai_observation.error:
+        ai_status = (
+            "**الحالة:** فشل التحليل\n\n"
+            f"**الخطأ:** {ai_observation.error}"
+        )
+    else:
+        ai_status = (
+            "**الحالة:** تم التحليل بنجاح\n\n"
+            "| البند | القيمة |\n|---|---|\n"
+            f"| الاتجاه | {str(ai_observation.parsed_summary.get('bias', 'neutral')).upper()} |\n"
+            f"| Confidence | {float(ai_observation.parsed_summary.get('confidence', 0)):.0%} |\n"
+            "| ملخص التحليل | "
+            f"{str(ai_observation.parsed_summary.get('summary_ar', '—')).replace('|', '¦')} |\n"
+            "| المخاطر | "
+            f"{str(ai_observation.parsed_summary.get('risks_ar', '—')).replace('|', '¦')} |\n"
+            f"| شمعة التحليل | {ai_observation.at_candle_open_time.isoformat()} |\n"
+            f"| زمن الاستجابة | {ai_observation.latency_ms or '—'} ms |"
         )
 
     text = f"""# 🤖 Ethereum Paper Trading — BOT STATUS
@@ -255,7 +283,7 @@ def render_status() -> None:
 
 ## 🤖 Gemini Shadow — مراقب مستقل
 
-{'**الحالة:** غير مفعّل\n\nلا يوجد تحليل Gemini محفوظ في هذه الدورة.' if ai_observation is None else ('**الحالة:** فشل التحليل\n\n**الخطأ:** ' + str(ai_observation.error) if ai_observation.error else '**الحالة:** تم التحليل بنجاح\n\n| البند | القيمة |\n|---|---|\n| الاتجاه | ' + str(ai_observation.parsed_summary.get('bias', 'neutral')).upper() + ' |\n| Confidence | ' + f"{float(ai_observation.parsed_summary.get('confidence', 0)):.0%}" + ' |\n| ملخص التحليل | ' + str(ai_observation.parsed_summary.get('summary_ar', '—')).replace('|', '¦') + ' |\n| المخاطر | ' + str(ai_observation.parsed_summary.get('risks_ar', '—')).replace('|', '¦') + ' |\n| شمعة التحليل | ' + ai_observation.at_candle_open_time.isoformat() + ' |\n| زمن الاستجابة | ' + str(ai_observation.latency_ms or '—') + ' ms |')}
+{ai_status}
 
 > Gemini هنا **مراقب Shadow فقط**؛ لا يدخل في قرار الـBaseline ولا ينفذ أي أمر.
 ## 🗃️ البيانات
