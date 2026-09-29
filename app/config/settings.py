@@ -68,6 +68,7 @@ class Settings(BaseSettings):
     enable_ai_shadow: bool = False
     ai_provider: Literal["disabled", "gemini", "local"] = "disabled"
     gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
     ai_timeout_seconds: float = Field(default=15.0, gt=0, le=120)
 
     # --------------------------------------------------------------- storage
@@ -177,6 +178,7 @@ class Settings(BaseSettings):
             "starting_balance": str(self.starting_balance),
             "enable_ai_shadow": self.enable_ai_shadow,
             "ai_provider": self.ai_provider,
+            "gemini_model": self.gemini_model,
             "database_url": self.database_url,
             "log_level": self.log_level,
         }
