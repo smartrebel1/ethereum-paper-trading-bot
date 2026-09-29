@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 BINANCE_BASE_URL = "https://data-api.binance.vision"
 KLINES_PATH = "/api/v3/klines"
+TICKER_PRICE_PATH = "/api/v3/ticker/price"
 MAX_LIMIT = 1000
 
 
@@ -121,6 +122,17 @@ class BinanceRESTProvider(MarketDataProvider):
         unique: dict[datetime, RawCandle] = {candle.open_time: candle for candle in collected}
         return [unique[key] for key in sorted(unique)]
 
+    def fetch_current_price(self, symbol: str) -> tuple[Decimal, datetime]:
+        """Fetch the latest public spot price without an API key."""
+        payload = self._request(TICKER_PRICE_PATH, {"symbol": symbol})
+        if not isinstance(payload, dict):
+            raise BinanceError("ticker price response was not an object")
+        try:
+            price = Decimal(str(payload["price"]))
+        except (KeyError, TypeError, ValueError) as exc:
+            raise BinanceError("ticker price response missing a valid price") from exc
+        return price, datetime.now(tz=UTC)
+
     def health(self) -> ProviderHealth:
         try:
             response = self.client.get("/api/v3/ping")
@@ -185,6 +197,7 @@ def kline_interval(timeframe: Timeframe | str) -> str:
 __all__ = [
     "BINANCE_BASE_URL",
     "KLINES_PATH",
+    "TICKER_PRICE_PATH",
     "MAX_LIMIT",
     "BinanceError",
     "BinanceRESTProvider",
