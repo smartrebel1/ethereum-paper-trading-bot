@@ -1,6 +1,10 @@
 name: Update Bot Status
 
 on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "BOT_STATUS.md"
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
