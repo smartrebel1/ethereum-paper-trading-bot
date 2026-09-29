@@ -17,11 +17,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from sqlalchemy import desc, select  # noqa: E402
+from app.ai.gemini import GEMINI_URL, observe_latest  # noqa: E402
 from app.config.settings import get_settings  # noqa: E402
 from app.database.session import session_scope  # noqa: E402
 from app.models.candle import Candle  # noqa: E402
-from app.ai.gemini import GEMINI_URL, observe_latest  # noqa: E402
+from sqlalchemy import desc, select  # noqa: E402
 
 
 def main() -> int:
@@ -41,9 +41,11 @@ def main() -> int:
         return 2
 
     if args.check:
-        import httpx
-        import time
         import random
+        import time
+
+        import httpx
+
         url = GEMINI_URL.format(model=settings.gemini_model)
         payload = {
             "contents": [{"parts": [{"text": "Return JSON: {\\\"ok\\\":true}"}]}],
@@ -86,14 +88,19 @@ def main() -> int:
         return 1
 
     with session_scope() as session:
-        candles = list(session.execute(
-            select(Candle)
-            .where(Candle.symbol == settings.symbol,
-                   Candle.timeframe == settings.timeframe.value,
-                   Candle.is_complete.is_(True))
-            .order_by(desc(Candle.open_time))
-            .limit(max(8, settings.ema_period + 2, settings.atr_period + 2))
-        ).scalars())[::-1]
+        candles = list(
+            session.execute(
+                select(Candle)
+                .where(
+                    Candle.symbol == settings.symbol,
+                    Candle.timeframe == settings.timeframe.value,
+                    Candle.is_complete.is_(True),
+                )
+                .order_by(desc(Candle.open_time))
+                .limit(max(8, settings.ema_period + 2, settings.atr_period + 2))
+            )
+            .scalars()
+        )[::-1]
         if not candles:
             print("❌ No completed candles found.")
             return 4
