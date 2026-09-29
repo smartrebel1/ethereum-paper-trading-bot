@@ -1,3 +1,4 @@
+# ruff: noqa: I001
 #!/usr/bin/env python
 """Build the human-readable GitHub BOT_STATUS.md snapshot.
 
