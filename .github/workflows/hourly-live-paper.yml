@@ -1,0 +1,56 @@
+name: Hourly Live Paper Cycle
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hourly-live-paper
+  cancel-in-progress: false
+
+jobs:
+  live-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      TRADING_MODE: "paper"
+      ENABLE_LIVE_TRADING: "false"
+      ENABLE_AI_SHADOW: "true"
+      AI_PROVIDER: "gemini"
+      GEMINI_MODEL: "gemini-3.5-flash"
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - name: Checkout persistent paper state
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --upgrade pip && pip install .
+
+      - name: Run 50-minute real-time paper cycle
+        run: |
+          python scripts/run_live_paper.py \
+            --state data/live_paper_state.json \
+            --duration-minutes 50
+
+      - name: Persist paper state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/live_paper_state.json
+          if git diff --cached --quiet; then
+            echo "Paper state did not change."
+          else
+            git commit -m "Persist hourly paper trading state"
+            git push
+          fi
