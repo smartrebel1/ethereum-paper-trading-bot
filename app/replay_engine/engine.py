@@ -217,7 +217,7 @@ class ReplayEngine:
                 window.append(candle)
                 continue
 
-            # Deterministic time: every timestamp written while processing this            # candle is derived from the candle itself, never from the wall clock.
+            # Deterministic time: timestamps come from the candle, not wall clock.
             clock = FrozenClock(candle.close_time)
             execution = PaperExecutionEngine(
                 session,
