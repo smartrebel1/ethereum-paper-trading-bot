@@ -58,6 +58,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["ARG001", "ARG002"]  # pytest fixtures are injected by name
+"app/dashboard/render.py" = ["E501"]  # embedded CSS/JS templates intentionally contain long lines
 
 [tool.mypy]
 python_version = "3.12"
