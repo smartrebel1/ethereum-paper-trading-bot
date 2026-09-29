@@ -64,6 +64,47 @@ def live_paper_status() -> dict[str, Any]:
     payload["mode"] = "live-paper"
     return payload
 
+@router.get("/live-paper", include_in_schema=False, response_class=HTMLResponse)
+def live_paper_page() -> HTMLResponse:
+    """Mobile-friendly live-paper monitor; it never mutates trading state."""
+    html = """
+    <!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Live Paper Trading</title>
+    <style>
+      body{font-family:system-ui,sans-serif;background:#111;color:#eee;margin:0;padding:16px}
+      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+      .card{background:#1b1b1b;border:1px solid #333;border-radius:12px;padding:14px}
+      .label{color:#aaa;font-size:13px}.value{font-size:22px;font-weight:700;margin-top:6px}
+      pre{white-space:pre-wrap;word-break:break-word}
+    </style>
+    <h2>🤖 ETHUSDT — Live Paper</h2>
+    <div id="status">جاري التحميل...</div>
+    <script>
+      async function refresh(){
+        const el=document.getElementById("status");
+        try{
+          const r=await fetch("/api/v1/live-paper/status",{cache:"no-store"});
+          const s=await r.json();
+          if(!s.available){el.innerHTML="<div class='card'>"+s.message+"</div>";return}
+          const p=s.position;
+          const cards=[
+            ["الحالة",s.status],["السعر الحالي",s.last_price||"—"],
+            ["Equity",s.equity||"—"],["P&L",s.net_pnl||"—"],
+            ["Unrealized",s.unrealized_pnl||"—"],
+            ["الصفقة","مفتوحة" if false else (p?"BUY":"لا توجد")],
+            ["آخر شمعة 4H",s.last_closed_4h||"—"],
+            ["آخر تحديث",s.updated_at||"—"]
+          ];
+          el.innerHTML="<div class='grid'>"+cards.map(x=>"<div class='card'><div class='label'>"+x[0]+"</div><div class='value'>"+x[1]+"</div></div>").join("")+"</div>"+
+            "<div class='card' style='margin-top:10px'><pre>"+JSON.stringify(s.last_signal||{},null,2)+"</pre></div>";
+        }catch(e){el.innerHTML="<div class='card'>تعذر قراءة الحالة: "+e+"</div>"}
+      }
+      refresh(); setInterval(refresh,2000);
+    </script></html>
+    """
+    return HTMLResponse(html)
+
 @router.get("/dashboard", include_in_schema=False, response_class=HTMLResponse)
 def dashboard(session: Session = Depends(get_db)) -> HTMLResponse:
     """The panel a non-technical reader opens first."""
