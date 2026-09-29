@@ -30,8 +30,6 @@ os.environ["ENABLE_LIVE_TRADING"] = "false"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sqlalchemy import desc, select  # noqa: E402
-
 from app.ai.gemini import observe_latest  # noqa: E402
 from app.candles.ingestor import DataIngestor  # noqa: E402
 from app.common.safety import enforce_paper_only  # noqa: E402
@@ -296,6 +294,17 @@ def render_status(
         hourly_position_text = "UNAVAILABLE"
         hourly_signal = {}
 
+    hourly_updated_text = (
+        format_cairo(datetime.fromisoformat(hourly_state["updated_at"]))
+        if hourly_state and hourly_state.get("updated_at")
+        else "غير متاح"
+    )
+    hourly_last_4h_text = (
+        hourly_state.get("last_closed_4h", "غير متاح")
+        if hourly_state
+        else "غير متاح"
+    )
+
     text = f"""# 🤖 Ethereum Paper Trading — BOT STATUS
 
 > صفحة متابعة بسيطة للبوت — البيانات تتحدث تلقائيًا من GitHub Actions.
@@ -328,28 +337,14 @@ def render_status(
 | P&L | {hourly_pnl:+.2f} دولار |
 | الصفقات المغلقة | {len(hourly_state.get("trades", [])) if hourly_state else 0} |
 | الصفقة المفتوحة | {hourly_position_text} |
-| آخر 4H تمت معالجتها | {hourly_state.get("last_processed_4h", "غير متاح") if hourly_state else "غير متاح"} |
-| آخر دورة | {format_cairo(datetime.fromisoformat(hourly_state["updated_at"])) if hourly_state and hourly_state.get("updated_at") else "غير متاح"} |
+| آخر 4H تمت معالجتها | {hourly_last_4h_text} |
+| آخر دورة | {hourly_updated_text} |
 | آخر Signal | {hourly_signal.get("action", "—")} |
 | Confidence | {float(hourly_signal.get("confidence", 0)):.0%} |
 
 > **مهم:** الـHourly Engine هو المحرك الورقي الدوري الجديد. الـBaseline لا يرسل أوامر حقيقية، والـWebSocket غير مطلوب لهذه المرحلة.
 
 > **مهم:** السعر الحالي Snapshot منفصل عن محرك الـBaseline. القرار والحسابات يستخدمان الشموع المكتملة فقط.
-
-## ⚡ Live Paper — دورة GitHub كل ساعة
-
-| البند | القيمة |
-|---|---|
-| حالة الدورة | {value(hourly_state.get("status")) if hourly_state else "غير متاح"} |
-| آخر دورة | {format_cairo(datetime.fromisoformat(hourly_state["updated_at"])) if hourly_state and hourly_state.get("updated_at") else "غير متاح"} |
-| السعر المستخدم في الدورة | {value(hourly_state.get("last_price")) if hourly_state else "غير متاح"} دولار |
-| Equity Live Paper | {value(hourly_state.get("equity")) if hourly_state else "غير متاح"} دولار |
-| Live Paper P&L | {value(hourly_state.get("net_pnl")) if hourly_state else "غير متاح"} دولار |
-| الصفقة الحالية | {"OPEN" if hourly_state and hourly_state.get("position") else "FLAT"} |
-| آخر شمعة 4H تمت معالجتها | {value(hourly_state.get("last_closed_4h")) if hourly_state else "غير متاح"} |
-
-> هذه الدورة تعمل كل ساعة على GitHub Actions باستخدام Binance Public API. ليست WebSocket لحظية، ولا ترسل أي أمر حقيقي.
 
 ## 💰 المحفظة
 
