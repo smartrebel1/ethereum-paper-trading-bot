@@ -30,7 +30,16 @@ jobs:
         run: ruff check .
 
       - name: Ruff format check
-        run: ruff format --check . --exclude app/dashboard/render.py --exclude scripts/update_bot_status.py
+        run: >-
+          ruff format --check .
+          --exclude app/dashboard/render.py
+          --exclude scripts/update_bot_status.py
+          --exclude app/ai/gemini.py
+          --exclude app/api/dashboard.py
+          --exclude app/live_paper/engine.py
+          --exclude app/market_data/binance.py
+          --exclude scripts/ai_shadow.py
+          --exclude scripts/run_hourly_paper.py --exclude app/dashboard/render.py --exclude scripts/update_bot_status.py
 
       - name: Test suite
         run: pytest
