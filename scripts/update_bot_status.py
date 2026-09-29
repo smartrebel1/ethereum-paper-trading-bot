@@ -31,6 +31,7 @@ from app.common.safety import enforce_paper_only  # noqa: E402
 from app.config.settings import get_settings  # noqa: E402
 from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
 from app.dashboard.summary import build_summary  # noqa: E402
+from app.ai.gemini import observe_latest  # noqa: E402
 from app.database.session import session_scope  # noqa: E402
 from app.market_data.binance import BinanceError, BinanceRESTProvider  # noqa: E402
 from app.market_data.csv_archive import CSVArchiveProvider  # noqa: E402
@@ -133,6 +134,18 @@ def replay() -> None:
         )
 
 
+def run_ai_shadow() -> None:
+    settings = get_settings()
+    if not settings.ai_enabled or settings.ai_provider != "gemini":
+        print("[status] Gemini shadow disabled.")
+        return
+    with session_scope() as session:
+        observation = observe_latest(session, settings, refresh=True)
+        print(
+            f"[status] Gemini shadow: bias={observation.parsed_summary.get('bias', 'neutral')} "
+            f"confidence={observation.parsed_summary.get('confidence', 0):.2f}"
+        )
+
 def render_status() -> None:
     settings = get_settings()
     with session_scope() as session:
@@ -148,6 +161,19 @@ def render_status() -> None:
     s = summary.statistics
     d = summary.data_status
     decision = summary.engine_decision
+    with session_scope() as ai_session:
+        from sqlalchemy import desc, select
+        from app.models.ai_observation import AIObservation
+        ai_observation = ai_session.execute(
+            select(AIObservation)
+            .where(
+                AIObservation.provider == "gemini",
+                AIObservation.symbol == settings.symbol,
+                AIObservation.timeframe == settings.timeframe.value,
+            )
+            .order_by(desc(AIObservation.at_candle_open_time))
+            .limit(1)
+        ).scalar_one_or_none()
     next_trade = summary.next_opportunity
     open_position = summary.open_position
     pending = summary.pending_order
@@ -222,6 +248,11 @@ def render_status() -> None:
 
 **الموعد:** {next_trade['when']}
 
+## 🤖 Gemini Shadow — مراقب مستقل
+
+{'**الحالة:** غير مفعّل\n\nلا يوجد تحليل Gemini محفوظ في هذه الدورة.' if ai_observation is None else '**الحالة:** تم التحليل بنجاح\n\n| البند | القيمة |\n|---|---|\n| الاتجاه | ' + str(ai_observation.parsed_summary.get('bias', 'neutral')).upper() + ' |\n| Confidence | ' + f"{float(ai_observation.parsed_summary.get('confidence', 0)):.0%}" + ' |\n| ملخص التحليل | ' + str(ai_observation.parsed_summary.get('summary_ar', '—')).replace('|', '\\|') + ' |\n| المخاطر | ' + str(ai_observation.parsed_summary.get('risks_ar', '—')).replace('|', '\\|') + ' |\n| شمعة التحليل | ' + ai_observation.at_candle_open_time.isoformat() + ' |\n| زمن الاستجابة | ' + str(ai_observation.latency_ms or '—') + ' ms |'}
+
+> Gemini هنا **مراقب Shadow فقط**؛ لا يدخل في قرار الـBaseline ولا ينفذ أي أمر.
 ## 🗃️ البيانات
 
 - الشموع المستخدمة: **{d['candles']}**
@@ -268,6 +299,7 @@ def main() -> int:
     reset_database()
     fetch_and_ingest()
     replay()
+    run_ai_shadow()
     render_status()
     return 0
 
