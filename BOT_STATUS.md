@@ -16,7 +16,7 @@
 | الصفقات الخاسرة | 13 |
 | الصفقة المفتوحة الآن | لا توجد |
 | الإشارة المعلقة | لا توجد |
-| آخر تحديث | الثلاثاء 29 سبتمبر 2026، 1:31 عصرًا بتوقيت القاهرة |
+| آخر تحديث | الثلاثاء 29 سبتمبر 2026، 1:39 عصرًا بتوقيت القاهرة |
 | آخر بيانات سعر | الثلاثاء 29 سبتمبر 2026، 7:00 صباحًا بتوقيت القاهرة |
 
 ## 💰 المحفظة
@@ -60,8 +60,7 @@
 
 **الحالة:** فشل التحليل
 
-**الخطأ:** Client error '400 Bad Request' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+**الخطأ:** Gemini HTTP 400: Invalid JSON payload received. Unknown name "additionalProperties" at 'generation_config.response_schema': Cannot find field.
 
 > Gemini هنا **مراقب Shadow فقط**؛ لا يدخل في قرار الـBaseline ولا ينفذ أي أمر.
 ## 🗃️ البيانات
