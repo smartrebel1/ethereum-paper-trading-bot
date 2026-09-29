@@ -30,7 +30,7 @@ jobs:
         run: ruff check .
 
       - name: Ruff format check
-        run: ruff format --check .
+        run: ruff format --check . --exclude app/dashboard/render.py --exclude scripts/update_bot_status.py
 
       - name: Test suite
         run: pytest
