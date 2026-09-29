@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "symbol": "ETHUSDT",
+  "starting_balance": "200",
+  "cash": "200",
+  "equity": "200",
+  "net_pnl": "0",
+  "unrealized_pnl": "0",
+  "peak_equity": "200",
+  "drawdown_pct": "0",
+  "last_price": null,
+  "last_price_at": null,
+  "last_closed_4h": null,
+  "last_signal": null,
+  "armed": null,
+  "position": null,
+  "trades": [],
+  "status": "STOPPED",
+  "connected_at": null,
+  "updated_at": "2026-09-29T23:43:57.630211+00:00",
+  "last_error": "InvalidStatus: server rejected WebSocket connection: HTTP 451"
+}
