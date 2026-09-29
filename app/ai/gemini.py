@@ -72,7 +72,7 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
     try:
         response = httpx.post(
             GEMINI_URL.format(model=settings.gemini_model),
-            params={"key": settings.gemini_api_key},
+            headers={"x-goog-api-key": settings.gemini_api_key},
             json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}},
             timeout=settings.ai_timeout_seconds,
         )
