@@ -27,7 +27,6 @@ GEMINI_RESPONSE_SCHEMA = {
         "risks_ar": {"type": "string"},
     },
     "required": ["bias", "confidence", "summary_ar", "risks_ar"],
-    "additionalProperties": False,
 }
 
 def _observation_id(symbol: str, timeframe: str, at: datetime) -> str:
