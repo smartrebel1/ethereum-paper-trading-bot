@@ -118,7 +118,8 @@ def main() -> int:
                 f"{observation.parsed_summary.get('summary_ar', observation.error or 'no result')}"
             )
             if observation.error:
-                break
+                print(f"❌ Gemini observer error: {observation.error}")
+                return 1
     return 0
 
 
