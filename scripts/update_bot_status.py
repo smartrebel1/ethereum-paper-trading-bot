@@ -342,7 +342,8 @@ def render_status(
 | آخر Signal | {hourly_signal.get("action", "—")} |
 | Confidence | {float(hourly_signal.get("confidence", 0)):.0%} |
 
-> **مهم:** الـHourly Engine هو المحرك الورقي الدوري الجديد. الـBaseline لا يرسل أوامر حقيقية، والـWebSocket غير مطلوب لهذه المرحلة.
+> **مهم:** الـHourly Engine هو المحرك الورقي الدوري الجديد.
+> الـBaseline لا يرسل أوامر حقيقية، والـWebSocket غير مطلوب لهذه المرحلة.
 
 > **مهم:** السعر الحالي Snapshot منفصل عن محرك الـBaseline. القرار والحسابات يستخدمان الشموع المكتملة فقط.
 
