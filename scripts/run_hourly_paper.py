@@ -290,23 +290,31 @@ def main() -> int:
                         None,
                     )
                     if next_candle is not None:
-                        open_position(
-                            state,
-                            next_candle.open,
-                            next_candle,
-                            decision.confidence,
-                            decision.snapshot.atr,
-                            strategy,
-                            config,
-                        )
-                        state["last_signal"]["entry_price"] = str(next_candle.open)
-                        state["last_signal"]["entry_at"] = (
-                            next_candle.open_time.isoformat()
-                        )
+                        entry_price = next_candle.open
+                        entry_at = next_candle.open_time
+                        entry_candle = next_candle
+                        execution_mode = "TARGET_CANDLE_OPEN"
                     else:
-                        state["last_signal"]["risk_gate"] = (
-                            "TARGET_CANDLE_NOT_AVAILABLE"
-                        )
+                        # The GitHub job may start after the target 4h candle
+                        # has opened. Never invent its historical fill; use the
+                        # current public price as a delayed, conservative fill.
+                        entry_price = current_price
+                        entry_at = current_at
+                        entry_candle = candle
+                        execution_mode = "CURRENT_PRICE_DELAYED"
+
+                    open_position(
+                        state,
+                        entry_price,
+                        entry_candle,
+                        decision.confidence,
+                        decision.snapshot.atr,
+                        strategy,
+                        config,
+                    )
+                    state["last_signal"]["entry_price"] = str(entry_price)
+                    state["last_signal"]["entry_at"] = entry_at.isoformat()
+                    state["last_signal"]["execution_mode"] = execution_mode
                 else:
                     state["last_signal"]["risk_gate"] = reason
 
