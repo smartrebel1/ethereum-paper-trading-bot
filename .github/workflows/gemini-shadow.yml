@@ -34,6 +34,9 @@ jobs:
       - name: Prepare database
         run: alembic upgrade head
 
+      - name: Load fresh public market data
+        run: python scripts/update_bot_status.py
+
       - name: Verify Gemini key and API
         run: python scripts/ai_shadow.py --check
 
