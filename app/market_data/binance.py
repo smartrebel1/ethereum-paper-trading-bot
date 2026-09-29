@@ -97,7 +97,7 @@ class BinanceRESTProvider(MarketDataProvider):
             if end_ms is not None:
                 params["endTime"] = end_ms
 
-            payload = self._request(params)
+            payload = self._request(KLINES_PATH, params)
             if not payload:
                 break
 
