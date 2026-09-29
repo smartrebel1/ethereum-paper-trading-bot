@@ -2,9 +2,9 @@
 """Run one hourly stateful paper-trading cycle from public Binance data.
 
 This is the GitHub-hosted alternative to the always-on WebSocket process.
-Each run restores a small JSON state, processes newly completed 4h candles,
-updates an open virtual position, evaluates a new 4h signal, and persists the
-state back into the repository. No credentials and no real orders are used.
+Each run restores a JSON state, processes newly completed 4h candles, updates
+an open virtual position, evaluates new 4h signals, and persists the state.
+No credentials and no real orders are used.
 """
 
 from __future__ import annotations
@@ -25,14 +25,13 @@ os.environ["ENABLE_LIVE_TRADING"] = "false"
 if str(ROOT) not in os.sys.path:
     os.sys.path.insert(0, str(ROOT))
 
-from app.common.enums import Side
-from app.common.safety import enforce_paper_only
-from app.config.settings import get_settings
-from app.config.strategy_config import load_frozen_strategy_config
-from app.market_data.binance import BinanceRESTProvider
-from app.common.time_utils import next_open_time
-from app.strategy.ema_atr import EMAAtrStrategy
-
+from app.common.enums import Side  # noqa: E402
+from app.common.safety import enforce_paper_only  # noqa: E402
+from app.common.time_utils import next_open_time  # noqa: E402
+from app.config.settings import get_settings  # noqa: E402
+from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
+from app.market_data.binance import BinanceRESTProvider  # noqa: E402
+from app.strategy.ema_atr import EMAAtrStrategy  # noqa: E402
 
 VERSION = 1
 MAX_DRAWDOWN = Decimal("0.05")
@@ -45,7 +44,11 @@ def dec(value: object) -> Decimal:
 
 def atomic_write(payload: dict[str, Any]) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    fd, temp_name = tempfile.mkstemp(prefix="hourly-paper-", suffix=".json", dir=STATE_PATH.parent)
+    fd, temp_name = tempfile.mkstemp(
+        prefix="hourly-paper-",
+        suffix=".json",
+        dir=STATE_PATH.parent,
+    )
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, ensure_ascii=False, indent=2)
@@ -77,6 +80,7 @@ def load_state(starting_balance: Decimal, symbol: str) -> dict[str, Any]:
             "updated_at": None,
             "last_error": None,
         }
+
     payload = json.loads(STATE_PATH.read_text(encoding="utf-8"))
     if payload.get("version") != VERSION or payload.get("symbol") != symbol:
         raise RuntimeError("hourly paper state is incompatible with current configuration")
@@ -94,7 +98,11 @@ def equity(state: dict[str, Any]) -> Decimal:
 def daily_realized_loss(state: dict[str, Any], now: datetime) -> Decimal:
     day = now.date().isoformat()
     pnl = sum(
-        (dec(t["net_pnl"]) for t in state["trades"] if str(t["exit_at"]).startswith(day)),
+        (
+            dec(t["net_pnl"])
+            for t in state["trades"]
+            if str(t["exit_at"]).startswith(day)
+        ),
         Decimal(0),
     )
     return max(Decimal(0), -pnl)
@@ -103,19 +111,29 @@ def daily_realized_loss(state: dict[str, Any], now: datetime) -> Decimal:
 def can_open(state: dict[str, Any], now: datetime) -> tuple[bool, str]:
     if state.get("position") is not None:
         return False, "POSITION_ALREADY_OPEN"
+
     eq = equity(state)
     peak = dec(state.get("peak_equity", state["starting_balance"]))
     if peak > 0 and (peak - eq) / peak >= MAX_DRAWDOWN:
         return False, "MAX_DRAWDOWN_GUARD"
-    if daily_realized_loss(state, now) >= dec(state["starting_balance"]) * MAX_DAILY_LOSS:
+
+    daily_limit = dec(state["starting_balance"]) * MAX_DAILY_LOSS
+    if daily_realized_loss(state, now) >= daily_limit:
         return False, "MAX_DAILY_LOSS_GUARD"
+
     return True, "OK"
 
 
-def close_position(state: dict[str, Any], price: Decimal, at: datetime, reason: str) -> None:
+def close_position(
+    state: dict[str, Any],
+    price: Decimal,
+    at: datetime,
+    reason: str,
+) -> None:
     position = state["position"]
     if position is None:
         return
+
     quantity = dec(position["quantity"])
     entry = dec(position["entry_price"])
     entry_fee = dec(position["entry_fee"])
@@ -123,33 +141,53 @@ def close_position(state: dict[str, Any], price: Decimal, at: datetime, reason: 
     exit_fee = exit_notional * dec(position["fee_rate"])
     gross = (price - entry) * quantity
     net = gross - entry_fee - exit_fee
+
     state["cash"] = str(dec(state["cash"]) + exit_notional - exit_fee)
-    state["trades"].append({
-        "entry_price": str(entry),
-        "exit_price": str(price),
-        "quantity": str(quantity),
-        "entry_fee": str(entry_fee),
-        "exit_fee": str(exit_fee),
-        "gross_pnl": str(gross),
-        "net_pnl": str(net),
-        "exit_reason": reason,
-        "entry_at": position["opened_at"],
-        "exit_at": at.isoformat(),
-        "signal_candle_open_time": position["signal_candle_open_time"],
-        "signal_confidence": position["signal_confidence"],
-    })
+    state["trades"].append(
+        {
+            "entry_price": str(entry),
+            "exit_price": str(price),
+            "quantity": str(quantity),
+            "entry_fee": str(entry_fee),
+            "exit_fee": str(exit_fee),
+            "gross_pnl": str(gross),
+            "net_pnl": str(net),
+            "exit_reason": reason,
+            "entry_at": position["opened_at"],
+            "exit_at": at.isoformat(),
+            "signal_candle_open_time": position["signal_candle_open_time"],
+            "signal_confidence": position["signal_confidence"],
+        }
+    )
     state["position"] = None
 
 
-def open_position(state: dict[str, Any], price: Decimal, candle: Any, confidence: Decimal, atr: Decimal, strategy: EMAAtrStrategy, config: Any) -> None:
+def open_position(
+    state: dict[str, Any],
+    price: Decimal,
+    candle: Any,
+    confidence: Decimal,
+    atr: Decimal,
+    strategy: EMAAtrStrategy,
+    config: Any,
+) -> None:
     eq = equity(state)
-    budget = min(eq * config.max_position_pct_decimal, dec(state["cash"]) / (Decimal(1) + config.fee_rate_decimal))
+    fee_multiplier = Decimal(1) + config.fee_rate_decimal
+    budget = min(
+        eq * config.max_position_pct_decimal,
+        dec(state["cash"]) / fee_multiplier,
+    )
     quantity = (budget / price).quantize(Decimal("0.000001"))
     if quantity <= 0:
         return
+
     notional = quantity * price
     fee = notional * config.fee_rate_decimal
-    sl, tp = strategy.stop_and_target(entry_price=price, atr_value=atr, side=Side.BUY)
+    sl, tp = strategy.stop_and_target(
+        entry_price=price,
+        atr_value=atr,
+        side=Side.BUY,
+    )
     state["cash"] = str(dec(state["cash"]) - notional - fee)
     state["position"] = {
         "quantity": str(quantity),
@@ -173,7 +211,11 @@ def main() -> int:
     provider = BinanceRESTProvider()
 
     try:
-        candles = provider.fetch_candles(settings.symbol, settings.timeframe, include_incomplete=False)
+        candles = provider.fetch_candles(
+            settings.symbol,
+            settings.timeframe,
+            include_incomplete=False,
+        )
         if len(candles) < strategy.warmup_candles():
             raise RuntimeError("not enough completed candles for strategy warmup")
         current_price, current_at = provider.fetch_current_price(settings.symbol)
@@ -186,36 +228,65 @@ def main() -> int:
 
     completed = candles[-500:]
     last_processed = state.get("last_processed_4h")
-    new_candles = [c for c in completed if last_processed is None or c.open_time.isoformat() > last_processed]
+    new_candles = [
+        candle
+        for candle in completed
+        if last_processed is None
+        or candle.open_time.isoformat() > last_processed
+    ]
 
     for candle in new_candles:
         position = state.get("position")
         if position is not None:
-            sl = dec(position["stop_loss"])
-            tp = dec(position["take_profit"])
-            if candle.low <= sl:
-                close_position(state, sl, candle.open_time, "SL_HIT")
-            elif candle.high >= tp:
-                close_position(state, tp, candle.open_time, "TP_HIT")
+            stop_loss = dec(position["stop_loss"])
+            take_profit = dec(position["take_profit"])
+            if candle.low <= stop_loss:
+                close_position(state, stop_loss, candle.open_time, "SL_HIT")
+            elif candle.high >= take_profit:
+                close_position(state, take_profit, candle.open_time, "TP_HIT")
 
-        window = [c for c in completed if c.open_time <= candle.open_time][-strategy.warmup_candles():]
+        window = [
+            item
+            for item in completed
+            if item.open_time <= candle.open_time
+        ][-strategy.warmup_candles():]
+
         if len(window) >= strategy.warmup_candles() and state.get("position") is None:
             decision = strategy.evaluate(window)
             state["last_signal"] = {
                 "candle_open_time": candle.open_time.isoformat(),
                 "action": decision.action.value,
-                "confidence": str(decision.confidence) if decision.confidence is not None else None,
+                "confidence": (
+                    str(decision.confidence)
+                    if decision.confidence is not None
+                    else None
+                ),
                 "reason": decision.reason,
                 "suppressed_reason": decision.suppressed_reason,
-                "atr": str(decision.snapshot.atr) if decision.snapshot.atr is not None else None,
+                "atr": (
+                    str(decision.snapshot.atr)
+                    if decision.snapshot.atr is not None
+                    else None
+                ),
                 "evaluated_at": datetime.now(tz=UTC).isoformat(),
             }
-            if decision.is_entry and decision.confidence is not None and decision.snapshot.atr is not None:
+
+            if (
+                decision.is_entry
+                and decision.confidence is not None
+                and decision.snapshot.atr is not None
+            ):
                 allowed, reason = can_open(state, candle.close_time)
                 if allowed:
-                    # The signal targets the next 4h candle open. That candle's
-                    # actual open is used, never the later close.
-                    next_candle = next((c for c in completed if c.open_time == decision.target_execution_open_time), None)
+                    next_candle = next(
+                        (
+                            item
+                            for item in completed
+                            if item.open_time
+                            == decision.target_execution_open_time
+                        ),
+                        None,
+                    )
                     if next_candle is not None:
                         open_position(
                             state,
@@ -227,24 +298,30 @@ def main() -> int:
                             config,
                         )
                         state["last_signal"]["entry_price"] = str(next_candle.open)
-                        state["last_signal"]["entry_at"] = next_candle.open_time.isoformat()
+                        state["last_signal"]["entry_at"] = (
+                            next_candle.open_time.isoformat()
+                        )
                     else:
-                        state["last_signal"]["risk_gate"] = "TARGET_CANDLE_NOT_AVAILABLE"
+                        state["last_signal"]["risk_gate"] = (
+                            "TARGET_CANDLE_NOT_AVAILABLE"
+                        )
                 else:
                     state["last_signal"]["risk_gate"] = reason
 
         state["last_processed_4h"] = candle.open_time.isoformat()
 
-    # Manage the open position against the latest observed public price.
     position = state.get("position")
     if position is not None:
-        if current_price <= dec(position["stop_loss"]):
-            close_position(state, dec(position["stop_loss"]), current_at, "LIVE_PRICE_SL")
-        elif current_price >= dec(position["take_profit"]):
-            close_position(state, dec(position["take_profit"]), current_at, "LIVE_PRICE_TP")
+        stop_loss = dec(position["stop_loss"])
+        take_profit = dec(position["take_profit"])
+        if current_price <= stop_loss:
+            close_position(state, stop_loss, current_at, "LIVE_PRICE_SL")
+        elif current_price >= take_profit:
+            close_position(state, take_profit, current_at, "LIVE_PRICE_TP")
 
     eq = equity(state)
-    state["peak_equity"] = str(max(dec(state.get("peak_equity", state["starting_balance"])), eq))
+    peak = dec(state.get("peak_equity", state["starting_balance"]))
+    state["peak_equity"] = str(max(peak, eq))
     state["status"] = "RUNNING"
     state["updated_at"] = current_at.isoformat()
     atomic_write(state)
