@@ -20,7 +20,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.common.safety import assert_paper_only  # noqa: E402
+from app.common.safety import enforce_paper_only  # noqa: E402
+from app.config.settings import get_settings  # noqa: E402
 from app.scheduler.runner import DEFAULT_POLL_SECONDS, run_scheduler  # noqa: E402
 
 
@@ -37,7 +38,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--timeframe", default=None)
     args = parser.parse_args(argv)
 
-    assert_paper_only()
+    enforce_paper_only(get_settings())
 
     try:
         run_scheduler(
