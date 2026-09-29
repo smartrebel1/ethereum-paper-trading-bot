@@ -157,6 +157,18 @@ docs/            ARCHITECTURE, STATE_MACHINE, EVENTS, DECISIONS
 * [`docs/EVENTS.md`](docs/EVENTS.md) — full event catalog, payload keys, integrity codes and severity, "what must never be added".
 * [`docs/DECISIONS.md`](docs/DECISIONS.md) — 15 ADRs, including every bug found and fixed in the phase-1 draft.
 
+## Continuous Integration
+
+GitHub Actions now runs on every push to `main` and every pull request targeting
+`main`. The CI gate uses Python 3.12 and checks:
+
+- `ruff check .`
+- `ruff format --check .`
+- `pytest`
+
+The workflow is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+It does not connect to Binance, execute trades, or require secrets.
+
 ## Roadmap
 
 | Phase | Content |
