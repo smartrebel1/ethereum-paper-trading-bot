@@ -303,7 +303,7 @@ def render_status(
         else "غير متاح"
     )
     hourly_last_4h_text = (
-        hourly_state.get("last_closed_4h", "غير متاح")
+        hourly_state.get("last_processed_4h", "غير متاح")
         if hourly_state
         else "غير متاح"
     )
