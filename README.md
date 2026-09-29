@@ -1,10 +1,9 @@
 # ETHUSDT Paper Trading Engine — Phase 1
 
 A deterministic, **paper-only** trading research engine for ETHUSDT.
-The engine runs **entirely locally (or on your own server)**: no GitHub, no CI
-and no cloud service is involved in running, testing or scheduling it. If you
-keep the project in Git it is only as a backup of the code — see ADR-020 and
-the Arabic note in [`START_HERE_AR.md`](START_HERE_AR.md).
+The engine runs locally, while GitHub Actions can publish a lightweight human-readable
+`BOT_STATUS.md` snapshot from public Binance market data. No cloud server or paid
+hosting is required for that status page.
 
 > **Live trading is not implemented — and cannot be, by construction.**
 > `TradingMode`/`ExecutionProvider` have no `LIVE` member, the startup guard
@@ -188,6 +187,16 @@ Run `python scripts/run_paper_scheduler.py` on your own machine/server to keep t
 
 Binance documents public market-data endpoints for market data; this project uses them only for candles, never for order submission.
 
+
+## GitHub BOT STATUS
+
+For a simple mobile-friendly view, open [`BOT_STATUS.md`](BOT_STATUS.md).
+GitHub Actions updates it approximately every hour using completed ETHUSDT 4H
+candles from Binance's public market-data API. The page is **paper trading only**
+and never submits real orders.
+
+Workflow: [`.github/workflows/update-bot-status.yml`](.github/workflows/update-bot-status.yml).
+
 ## Roadmap
 
 | Phase | Content |
@@ -207,23 +216,3 @@ Binance documents public market-data endpoints for market data; this project use
 | 13 | 15m research stream + data provenance archiving |
 | 14 | Full audit / reconciliation |
 
-
-## Cloud dashboard from mobile
-
-The repository includes a Render Blueprint in `render.yaml` for a public web dashboard plus a continuous paper-trading worker backed by PostgreSQL.
-
-### Deploy
-
-1. Open Render and create a Blueprint from this repository.
-2. Select `smartrebel1/ethereum-paper-trading-bot`.
-3. Deploy the Blueprint.
-4. After the web service is live, open:
-   `https://<your-service>.onrender.com/dashboard`
-
-The worker runs `scripts/run_cloud_worker.py`, initializes migrations, imports the public historical Binance archive when the database is empty, rebuilds paper-trading history when needed, and then runs the continuous closed-candle scheduler.
-
-**Safety:** this deployment remains paper-only. It does not accept Binance API keys and has no live-order execution path.
-
-**Important hosting note:** Render currently does not offer a free Background Worker. The Blueprint therefore uses the smallest paid worker plan for continuous scheduling; the free web service and free PostgreSQL options have separate limitations, including the free Postgres 30-day expiry. For a permanently free always-on setup, use a VM instead.
-
-See the official Render Blueprint documentation for the current deployment flow.
