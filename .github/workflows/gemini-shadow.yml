@@ -17,7 +17,7 @@ jobs:
       GEMINI_MODEL: "gemini-2.5-flash"
       TRADING_MODE: "paper"
       ENABLE_LIVE_TRADING: "false"
-      DATABASE_URL: "sqlite:///./data/ai_shadow.db"
+      DATABASE_URL: "sqlite:///./data/status.db"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
