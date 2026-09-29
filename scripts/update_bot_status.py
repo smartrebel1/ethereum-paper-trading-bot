@@ -15,6 +15,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from decimal import Decimal
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "data" / "status.db"
@@ -55,6 +56,8 @@ def fetch_and_ingest() -> None:
     settings = get_settings()
     candles = []
     rest_error: str | None = None
+    current_price: Decimal | None = None
+    current_price_at: datetime | None = None
 
     provider = BinanceRESTProvider()
     try:
@@ -64,6 +67,11 @@ def fetch_and_ingest() -> None:
                 settings.timeframe,
                 include_incomplete=False,
             )[-1000:]
+            try:
+                current_price, current_price_at = provider.fetch_current_price(settings.symbol)
+                print(f"[status] current price={current_price} at={current_price_at.isoformat()}")
+            except BinanceError as exc:
+                print(f"[status] current price unavailable: {exc}")
         except BinanceError as exc:
             rest_error = str(exc)
     finally:
@@ -153,7 +161,7 @@ def run_ai_shadow() -> None:
         print(f"[status] Gemini shadow unavailable: {str(exc)[:256]}")
 
 
-def render_status() -> None:
+def render_status(current_price: Decimal | None, current_price_at: datetime | None) -> None:
     settings = get_settings()
     with session_scope() as session:
         summary = build_summary(
@@ -189,6 +197,9 @@ def render_status() -> None:
 
     def value(item: object) -> str:
         return "—" if item is None else str(item)
+
+    current_price_text = "غير متاح" if current_price is None else f"{current_price:,.2f} دولار"
+    current_price_time_text = "غير متاح" if current_price_at is None else format_cairo(current_price_at)
 
     open_text = "لا توجد" if open_position is None else "نعم"
     pending_text = "لا توجد" if pending is None else "نعم"
@@ -242,7 +253,11 @@ def render_status() -> None:
 | الصفقة المفتوحة الآن | {open_text} |
 | الإشارة المعلقة | {pending_text} |
 | آخر تحديث | {summary.generated_at_cairo} |
-| آخر بيانات سعر | {value(d['to'])} |
+| **السعر الحالي (Live Snapshot)** | **{current_price_text}** |
+| وقت جلب السعر الحالي | {current_price_time_text} |
+| آخر شمعة 4H مكتملة | {value(d['to'])} |
+
+> **مهم:** السعر الحالي Snapshot منفصل عن محرك الـBaseline. القرار والحسابات يستخدمان الشموع المكتملة فقط.
 
 ## 💰 المحفظة
 
@@ -330,10 +345,10 @@ def render_status() -> None:
 def main() -> int:
     enforce_paper_only(get_settings())
     reset_database()
-    fetch_and_ingest()
+    current_price, current_price_at = fetch_and_ingest()
     replay()
     run_ai_shadow()
-    render_status()
+    render_status(current_price, current_price_at)
     return 0
 
 
