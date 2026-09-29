@@ -1,0 +1,45 @@
+name: Extract project backup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract bot_code_backup.zip
+        run: |
+          set -e
+          test -f bot_code_backup.zip
+          mkdir -p .extract_tmp
+          unzip -q -o bot_code_backup.zip -d .extract_tmp
+
+          # If the ZIP contains one top-level project folder, use its contents.
+          if [ "$(find .extract_tmp -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ] && [ -d "$(find .extract_tmp -mindepth 1 -maxdepth 1 -type d)" ]; then
+            ROOT="$(find .extract_tmp -mindepth 1 -maxdepth 1 -type d)"
+            cp -a "$ROOT"/. .
+          else
+            cp -a .extract_tmp/. .
+          fi
+
+          rm -rf .extract_tmp
+          rm -f bot_code_backup.zip
+
+      - name: Commit extracted project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Extract project backup"
+            git push
+          fi
