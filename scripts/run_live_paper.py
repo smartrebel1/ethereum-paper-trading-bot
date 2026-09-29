@@ -21,11 +21,42 @@ from app.config.settings import get_settings  # noqa: E402
 from app.live_paper.engine import DEFAULT_WS_URL, LivePaperEngine  # noqa: E402
 
 
+async def run_engine(engine: LivePaperEngine, duration_minutes: float | None) -> None:
+    if duration_minutes is None:
+        await engine.run_forever()
+        return
+
+    async def stop_after_duration() -> None:
+        await asyncio.sleep(duration_minutes * 60)
+        engine.stop()
+
+    stopper = asyncio.create_task(stop_after_duration())
+    try:
+        await engine.run_forever()
+    finally:
+        stopper.cancel()
+        await asyncio.gather(stopper, return_exceptions=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run real-time ETHUSDT paper trading.")
     parser.add_argument("--state", default=None, help="persistent JSON state path")
-    parser.add_argument("--ws-url", default=DEFAULT_WS_URL, help="Binance public WebSocket base URL")
-    parser.add_argument("--reset", action="store_true", help="delete the paper state before starting")
+    parser.add_argument(
+        "--ws-url",
+        default=DEFAULT_WS_URL,
+        help="Binance public WebSocket base URL",
+    )
+    parser.add_argument(
+        "--duration-minutes",
+        type=float,
+        default=None,
+        help="stop cleanly after this many minutes; useful for scheduled GitHub Actions runs",
+    )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="delete the paper state before starting",
+    )
     args = parser.parse_args(argv)
 
     settings = get_settings()
@@ -37,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
 
     engine = LivePaperEngine(state_path=state_path, websocket_url=args.ws_url)
     try:
-        asyncio.run(engine.run_forever())
+        asyncio.run(run_engine(engine, args.duration_minutes))
     except KeyboardInterrupt:
         return 0
     return 0
