@@ -255,7 +255,7 @@ def render_status() -> None:
 
 ## 🤖 Gemini Shadow — مراقب مستقل
 
-{'**الحالة:** غير مفعّل\n\nلا يوجد تحليل Gemini محفوظ في هذه الدورة.' if ai_observation is None else '**الحالة:** تم التحليل بنجاح\n\n| البند | القيمة |\n|---|---|\n| الاتجاه | ' + str(ai_observation.parsed_summary.get('bias', 'neutral')).upper() + ' |\n| Confidence | ' + f"{float(ai_observation.parsed_summary.get('confidence', 0)):.0%}" + ' |\n| ملخص التحليل | ' + str(ai_observation.parsed_summary.get('summary_ar', '—')).replace('|', '¦') + ' |\n| المخاطر | ' + str(ai_observation.parsed_summary.get('risks_ar', '—')).replace('|', '¦') + ' |\n| شمعة التحليل | ' + ai_observation.at_candle_open_time.isoformat() + ' |\n| زمن الاستجابة | ' + str(ai_observation.latency_ms or '—') + ' ms |'}
+{'**الحالة:** غير مفعّل\n\nلا يوجد تحليل Gemini محفوظ في هذه الدورة.' if ai_observation is None else ('**الحالة:** فشل التحليل\n\n**الخطأ:** ' + str(ai_observation.error) if ai_observation.error else '**الحالة:** تم التحليل بنجاح\n\n| البند | القيمة |\n|---|---|\n| الاتجاه | ' + str(ai_observation.parsed_summary.get('bias', 'neutral')).upper() + ' |\n| Confidence | ' + f"{float(ai_observation.parsed_summary.get('confidence', 0)):.0%}" + ' |\n| ملخص التحليل | ' + str(ai_observation.parsed_summary.get('summary_ar', '—')).replace('|', '¦') + ' |\n| المخاطر | ' + str(ai_observation.parsed_summary.get('risks_ar', '—')).replace('|', '¦') + ' |\n| شمعة التحليل | ' + ai_observation.at_candle_open_time.isoformat() + ' |\n| زمن الاستجابة | ' + str(ai_observation.latency_ms or '—') + ' ms |')}
 
 > Gemini هنا **مراقب Shadow فقط**؛ لا يدخل في قرار الـBaseline ولا ينفذ أي أمر.
 ## 🗃️ البيانات
