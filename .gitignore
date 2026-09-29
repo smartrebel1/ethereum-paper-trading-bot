@@ -1,0 +1,16 @@
+# لا تُرفع أبدًا: بيئة العمل، قاعدة البيانات، بيانات الأسعار الكبيرة، ملفات مؤقتة
+.venv/
+data/
+*.db
+*.db-wal
+*.db-shm
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.env
+htmlcov/
+.coverage
+build/
+dist/
+*.egg-info/

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>متابعة بوت التداول — إيثيريوم</title>
+<style>
+:root {
+  --bg: #0f1720; --card: #17222e; --card-2: #1e2c3a; --line: #2b3d4f;
+  --ink: #eaf2f8; --muted: #9fb3c8; --green: #35c98a; --red: #ef6b6b;
+  --gold: #f2c14e; --blue: #63b3ed;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 0 48px; background: var(--bg); color: var(--ink);
+  font-family: "Segoe UI", "Noto Naskh Arabic", "Traditional Arabic", Tahoma, Arial, sans-serif;
+  direction: rtl; line-height: 1.9; font-size: 17px;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+header.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+h1 { font-size: 28px; margin: 0 0 6px; }
+h2 { font-size: 21px; margin: 0 0 12px; }
+h3 { font-size: 18px; margin: 0 0 8px; }
+.sub { color: var(--muted); font-size: 15px; margin: 0; }
+.pill {
+  background: #24405a; color: #cfe8ff; border: 1px solid #35618a;
+  border-radius: 999px; padding: 6px 14px; font-size: 14px; white-space: nowrap;
+}
+.pill.paper { background: #2a4030; color: #b7f0cf; border-color: #3d6b4c; }
+.grid { display: grid; gap: 16px; }
+.answers { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-top: 18px; }
+.two { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-top: 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 18px 20px; box-shadow: 0 8px 22px rgba(0,0,0,.18);
+}
+.card .label { color: var(--muted); font-size: 15px; margin: 0 0 6px; }
+.card .big { font-size: 26px; font-weight: 700; margin: 0 0 6px; }
+.card .small { color: var(--muted); font-size: 14px; margin: 0; }
+.green { color: var(--green); }
+.red { color: var(--red); }
+.gold { color: var(--gold); }
+.blue { color: var(--blue); }
+.muted { color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 16px; margin-top: 10px; }
+th, td { padding: 10px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; font-size: 15px; }
+tr:last-child td { border-bottom: none; }
+.kv {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 6px 0; border-bottom: 1px dashed var(--line);
+}
+.kv:last-child { border-bottom: none; }
+.kv span:first-child { color: var(--muted); }
+ul.rules { margin: 8px 0 0; padding-inline-start: 22px; }
+ul.rules li { margin-bottom: 8px; }
+ul.notes { margin: 8px 0 0; padding-inline-start: 22px; color: var(--muted); font-size: 15px; }
+.banner {
+  border-radius: 14px; padding: 14px 18px; margin: 18px 0 6px; font-size: 16px;
+  background: #1c3326; border: 1px solid #35594048; color: #cfeeff;
+}
+.banner.warn { background: #3a2c1c; border-color: #6b4d2a; color: #ffe6bf; }
+.banner.bad { background: #3a1f1f; border-color: #7a3333; color: #ffd9d9; }
+button {
+  background: #24405a; color: #eaf2f8; border: 1px solid #35618a; border-radius: 10px;
+  padding: 8px 16px; font-size: 15px; cursor: pointer; font-family: inherit;
+}
+.foot { margin-top: 26px; color: #6f8399; font-size: 13px; text-align: center; }
+code { background: var(--card-2); padding: 2px 6px; border-radius: 6px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>متابعة بوت التداول — إيثيريوم</h1>
+      <p class="sub">بيانات حقيقية من بينانس — شمعة كل 4 ساعات — من
+        الخميس 17 أغسطس 2017 إلى
+        الاثنين 31 أغسطس 2026</p>
+    </div>
+    <div>
+      <span class="pill paper">وضع تجريبي: أموال وهمية، مفيش أوامر حقيقية</span>
+      <span class="pill">آخر تحديث: الثلاثاء 29 سبتمبر 2026، 10:55 صباحًا بتوقيت القاهرة</span>
+    </div>
+  </header>
+
+  <div class="banner">البوت شغال على بيانات حقيقية من بينانس، ومعاه أرباح +55.01 دولار من أصل 200 دولار.</div>
+  <div class="grid answers"><div class="card"><p class="label">١) شترينا إيه؟</p><p class="big blue">0.009515 إيثيريوم</p><p class="small">سعر الدخول 2433.32 دولار — الصفقة لسه مفتوحة</p></div><div class="card"><p class="label">٢) الصفقة اتنفذت امتى؟</p><p class="big blue">السبت 22 أغسطس 2026</p><p class="small">ساعة التنفيذ:  11:00 صباحًا بتوقيت القاهرة</p></div><div class="card"><p class="label">٣) ربحنا كام؟</p><p class="big green">+0.33 دولار</p><p class="small">على السعر الحالي 2,467.65 دولار — لسه مش مقفولة</p></div><div class="card"><p class="label">٤) الصفقة الجاية امتى؟</p><p class="big gold">بعد ما الصفقة الحالية تقفل</p><p class="small">آخر شمعة وصلتنا: الاثنين 31 أغسطس 2026</p></div></div>
+
+  <div class="grid two">
+    <div class="card"><h2>الصفقة المفتوحة دلوقتي</h2><p>السعر (2,433.31) كان أعلى من المؤشر (1,934.33) والمؤشر كان صاعد، ونسبة التأكد 66٪.</p><div class="kv"><span>الكمية</span><span class="">0.009515 إيثيريوم</span></div><div class="kv"><span>سعر الدخول</span><span class="">2433.32 دولار</span></div><div class="kv"><span>وقت التنفيذ</span><span class="">السبت 22 أغسطس 2026، 11:00 صباحًا بتوقيت القاهرة</span></div><div class="kv"><span>وقف الخسارة</span><span class="red">2340.99 دولار</span></div><div class="kv"><span>هدف الربح</span><span class="green">2617.95 دولار</span></div><div class="kv"><span>السعر الحالي</span><span class="">2,467.65 دولار</span></div><div class="kv"><span>الربح لو قفلنا الآن</span><span class="">+0.33 دولار</span></div></div>
+    <div class="card"><h2>الرصيد والحساب</h2><div class='kv'><span>الرصيد الابتدائي</span><span>200.00 دولار</span></div><div class='kv'><span>الرصيد الحالي (الكاش)</span><span>231.53 دولار</span></div><div class='kv'><span>قيمة الصفقة المفتوحة</span><span>23.48 دولار</span></div><div class='kv'><span>إجمالي الربح/الخسارة</span><span>+55.01 دولار</span></div><div class='kv'><span>النسبة من رأس المال</span><span>+27.50٪</span></div><div class='kv'><span>أعلى رصيد وصلناه</span><span>255.01 دولار</span></div><div class='kv'><span>أكبر تراجع من القمة</span><span>13.05 دولار</span></div><div class='kv'><span>الرسوم المدفوعة</span><span>16.38 دولار</span></div></div>
+  </div>
+
+  <div class="grid two">
+    <div class="card"><h2>النتائج بالأرقام</h2><div class='kv'><span>عدد الصفقات المقفولة</span><span>366</span></div><div class='kv'><span>صفقات كسبانة</span><span>148</span></div><div class='kv'><span>صفقات خسرانة</span><span>218</span></div><div class='kv'><span>نسبة الصفقات الكسبانة</span><span>40٪</span></div><div class='kv'><span>متوسط الصفقة الكسبانة</span><span>+1.59 دولار</span></div><div class='kv'><span>متوسط الصفقة الخسرانة</span><span>−0.94 دولار</span></div><div class='kv'><span>أحسن صفقة</span><span>+4.11 دولار</span></div><div class='kv'><span>أسوأ صفقة</span><span>−2.22 دولار</span></div><div class='kv'><span>متوسط مدة الصفقة</span><span>يوم و17 ساعة</span></div><p class="small">218 صفقة قفلت على وقف الخسارة، و148 صفقة قفلت على هدف الربح.</p></div>
+    <div class="card"><h2>البيانات اللي البوت بيقرا منها</h2><div class="kv"><span>نوع البيانات</span><span class="">أسعار إيثيريوم حقيقية لشمعة 4 ساعات (بينانس)</span></div><div class="kv"><span>عدد الشمعات</span><span class="">19,794</span></div><div class="kv"><span>من</span><span class="">الخميس 17 أغسطس 2017، 6:00 صباحًا بتوقيت القاهرة</span></div><div class="kv"><span>إلى</span><span class="">الاثنين 31 أغسطس 2026، 11:00 مساءً بتوقيت القاهرة</span></div><div class="kv"><span>فجوات في بيانات بينانس نفسها</span><span class="gold">9 فجوات (17 شمعة ناقصة)</span></div><p class='small'>أول فجوة مثلًا: الأربعاء 6 سبتمبر 2017، 6:00 مساءً بتوقيت القاهرة (1 ناقصة).</p></div>
+  </div>
+
+  <div class="card"><h2>آخر الصفقات (الأحدث فوق)</h2><table><thead><tr><th>قفلت امتى</th><th>الكمية</th><th>سعر الدخول ← الخروج</th><th>الربح/الخسارة</th><th>مدة الصفقة</th><th>ليه قفلت</th></tr></thead><tbody><tr><td>السبت 22 أغسطس 2026، 7:00 صباحًا بتوقيت القاهرة</td><td>شراء 0.009238</td><td>2515.06 ← 2432.37</td><td class='red'>−0.81 دولار</td><td>قفلت في نفس شمعة الدخول</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr><tr><td>الجمعة 21 أغسطس 2026، 11:00 مساءً بتوقيت القاهرة</td><td>شراء 0.009739</td><td>2371.67 ← 2515.24</td><td class='green'>+1.35 دولار</td><td>12 ساعة</td><td class='muted'>الصفقة قفلت على هدف الربح.</td></tr><tr><td>الجمعة 21 أغسطس 2026، 7:00 صباحًا بتوقيت القاهرة</td><td>شراء 0.010197</td><td>2252.81 ← 2381.72</td><td class='green'>+1.27 دولار</td><td>يوم و4 ساعات</td><td class='muted'>الصفقة قفلت على هدف الربح.</td></tr><tr><td>الأربعاء 19 أغسطس 2026، 11:00 مساءً بتوقيت القاهرة</td><td>شراء 0.010972</td><td>2085.83 ← 2168.42</td><td class='green'>+0.86 دولار</td><td>4 ساعات</td><td class='muted'>الصفقة قفلت على هدف الربح.</td></tr><tr><td>الاثنين 27 يوليو 2026، 11:00 مساءً بتوقيت القاهرة</td><td>شراء 0.011896</td><td>1927.74 ← 1891.56</td><td class='red'>−0.48 دولار</td><td>4 ساعات</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr><tr><td>الاثنين 27 يوليو 2026، 3:00 عصرًا بتوقيت القاهرة</td><td>شراء 0.011754</td><td>1954.72 ← 1922.80</td><td class='red'>−0.42 دولار</td><td>12 ساعة</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr><tr><td>الأحد 26 يوليو 2026، 11:00 مساءً بتوقيت القاهرة</td><td>شراء 0.012172</td><td>1880.67 ← 1953.47</td><td class='green'>+0.84 دولار</td><td>يومين و16 ساعة</td><td class='muted'>الصفقة قفلت على هدف الربح.</td></tr><tr><td>الجمعة 24 يوليو 2026، 3:00 صباحًا بتوقيت القاهرة</td><td>شراء 0.012044</td><td>1904.77 ← 1867.62</td><td class='red'>−0.49 دولار</td><td>3 أيام</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr><tr><td>الاثنين 20 يوليو 2026، 7:00 مساءً بتوقيت القاهرة</td><td>شراء 0.012396</td><td>1844.15 ← 1912.38</td><td class='green'>+0.80 دولار</td><td>يومين</td><td class='muted'>الصفقة قفلت على هدف الربح.</td></tr><tr><td>الجمعة 17 يوليو 2026، 7:00 صباحًا بتوقيت القاهرة</td><td>شراء 0.012222</td><td>1875.22 ← 1830.98</td><td class='red'>−0.59 دولار</td><td>يومين و12 ساعة</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr><tr><td>الأحد 12 يوليو 2026، 3:00 صباحًا بتوقيت القاهرة</td><td>شراء 0.012656</td><td>1814.82 ← 1780.32</td><td class='red'>−0.48 دولار</td><td>8 ساعات</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr><tr><td>الاثنين 27 أبريل 2026، 3:00 عصرًا بتوقيت القاهرة</td><td>شراء 0.009849</td><td>2335.96 ← 2301.12</td><td class='red'>−0.39 دولار</td><td>يوم</td><td class='muted'>الصفقة قفلت على وقف الخسارة.</td></tr></tbody></table></div>
+  <div class="grid two">
+    <div class="card"><h2>إزاي البوت بياخد قراره؟ (بالعربي المفهوم)</h2><ul class='rules'><li>نشوف كل شمعة 4 ساعات بعد ما تقفل (مش قبل كده ولا في وسطها).</li><li>الشرط الأول: سعر الإغلاق يكون أعلى من المؤشر (متوسط 200 شمعة).</li><li>الشرط الثاني: المؤشر نفسه يكون طالع لفوق.</li><li>الشرط الثالث: نسبة التأكد 60٪ أو أكتر.</li><li>لو الثلاثة اتفقوا: نشتري عند فتح الشمعة الجاية بس، ومش بنستنى.</li><li>بنحدد وقف الخسارة والهدف من مقياس التذبذب (ATR): خسارة 1.5×، ربح 3×.</li><li>أقصى مبلغ في الصفقة الواحدة 10٪ من رأس المال، ومفيش رفع مالي.</li><li>لما وقف الخسارة والهدف يتلمسوا في نفس الشمعة، بنحسب إن وقف الخسارة اللي ضرب.</li></ul><p class='small'>الإعدادات مربوطة ومقفولة (نسخة 1.0.0). أي تغيير فيها بيتسجّل، والقرارات القديمة تفضل مربوطة بنسختها الأصلية.</p></div>
+    <div class="card"><h2>ملاحظات مهمة</h2><ul class="notes"><li>كل الأرقام دي من نتائج تجربة على بيانات حقيقية من منصة بينانس، مفيش أي فلوس حقيقية ومفيش أي أوامر حقيقية.</li><li>الرصيد الابتدائي 200 دولار، وكل صفقة بتدفع رسوم 0.1٪ (بتتخصم من الربح).</li><li>لقينا 9 فجوات في بيانات بينانس نفسها (17 شمعة ناقصة). مبنخترعش بيانات مكانها أبدًا: الشمعة الناقصة تتسجّل، والصفقة اللي كان هدفها الشمعة الناقصة بتتلغي (مش بتتنفذ بسعر بديل).</li></ul></div>
+  </div>
+
+  <p class="foot">
+    هذه اللوحة تعرض نتائج تشغيل حقيقي للمحرك على بيانات تاريخية.
+    الرصيد النهائي 255.01 دولار
+    (ربح +27.50٪ مقارنة برأس المال الأصلي).
+    بلا شبكة، بلا مفاتيح API، بلا تنفيذ حقيقي.
+  </p>
+</div>
+</body>
+</html>

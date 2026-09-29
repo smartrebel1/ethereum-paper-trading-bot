@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ETHUSDT Paper Trading Engine — Dashboard</title>
+<style>
+  :root{
+    --bg:#0b1017; --panel:#121a25; --panel-2:#0f1720; --line:#1e2b3a;
+    --txt:#dce6f2; --muted:#7d8fa6; --accent:#4da3ff; --long:#2fbf71;
+    --short:#ef5b5b; --warn:#f0b429; --paper:#7a5cff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.45}
+  a{color:var(--accent)}
+  header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+    padding:14px 20px;background:linear-gradient(180deg,#101927,#0b1017);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1b2d45,#0d1725);
+    border:1px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--accent)}
+  h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:12px}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .badge{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    padding:4px 9px;border-radius:999px;border:1px solid transparent}
+  .badge.paper{background:rgba(122,92,255,.14);color:#b3a1ff;border-color:rgba(122,92,255,.4)}
+  .badge.ok{background:rgba(47,191,113,.12);color:var(--long);border-color:rgba(47,191,113,.35)}
+  .badge.bad{background:rgba(239,91,91,.12);color:var(--short);border-color:rgba(239,91,91,.35)}
+  .badge.dim{background:#141d29;color:var(--muted);border-color:var(--line)}
+  main{padding:18px 20px 48px;max-width:1400px;margin:0 auto}
+  .banner{display:none;margin:0 0 14px;padding:11px 14px;border-radius:10px;font-size:13px;
+    background:rgba(240,180,41,.09);border:1px solid rgba(240,180,41,.35);color:#ffd98a}
+  .banner.show{display:block}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .card .label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}
+  .card .value{font-family:var(--mono);font-size:23px;margin-top:6px;letter-spacing:-.4px}
+  .card .hint{color:var(--muted);font-size:11px;margin-top:3px;font-family:var(--mono)}
+  .value.pos{color:var(--long)} .value.neg{color:var(--short)}
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr}}
+  section{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+  section h2{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);
+    margin:0;padding:11px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .body{padding:12px 14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--muted);text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;
+    letter-spacing:.5px;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid #16212e;font-family:var(--mono);white-space:nowrap}
+  tbody tr:hover{background:#131c27}
+  .tag{padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;font-family:var(--sans)}
+  .tag.long{background:rgba(47,191,113,.13);color:var(--long)}
+  .tag.short{background:rgba(239,91,91,.13);color:var(--short)}
+  .tag.neutral{background:#182432;color:var(--muted)}
+  .tag.warn{background:rgba(240,180,41,.13);color:var(--warn)}
+  .empty{color:var(--muted);font-size:12.5px;padding:10px 2px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:12.5px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0;font-family:var(--mono);word-break:break-all}
+  .toolbar{display:flex;gap:8px;align-items:center}
+  button{background:#16212e;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+    padding:4px 10px;font-size:12px;cursor:pointer}
+  button:hover{border-color:#2b3d52}
+  .spark{width:100%;height:74px;display:block}
+  footer{color:var(--muted);font-size:11.5px;text-align:center;padding:6px 20px 26px}
+  code{font-family:var(--mono);background:#111a24;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">Ξ</div>
+    <div>
+      <h1>ETHUSDT Paper Trading Engine <span class="sub" id="ver">phase 1</span></h1>
+      <div class="sub" id="meta">connecting…</div>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge paper" title="No live order path exists in this build">Paper only</span>
+    <span class="badge dim" id="mode-badge">mode: ?</span>
+    <span class="badge dim" id="ready-badge">readiness: ?</span>
+    <span class="badge dim" id="hash-badge">cfg: ?</span>
+  </div>
+</header>
+
+<main>
+  <div class="banner" id="banner"></div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="grid">
+    <div>
+      <section>
+        <h2>Equity curve <span class="sub" id="equity-sub"></span></h2>
+        <div class="body">
+          <svg class="spark" id="spark" viewBox="0 0 600 74" preserveAspectRatio="none" aria-label="equity curve"></svg>
+          <div class="empty" id="equity-empty">No snapshots yet — snapshots are written per processed candle (phase 6).</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Open position <span class="sub">one per (symbol, timeframe)</span></h2>
+        <div class="body" id="position-body"><div class="empty">No open position.</div></div>
+      </section>
+
+      <section>
+        <h2>Recent trades <span class="sub" id="trades-sub"></span></h2>
+        <div class="body" id="trades-body"><div class="empty">No closed trades yet (phase 6).</div></div>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <h2>Pipeline
+          <span class="toolbar">
+            <span class="sub" id="refresh-info">—</span>
+            <button id="toggle">pause</button>
+          </span>
+        </h2>
+        <div class="body"><dl class="kv" id="pipeline"></dl></div>
+      </section>
+
+      <section>
+        <h2>Data coverage</h2>
+        <div class="body"><dl class="kv" id="coverage"></dl></div>
+      </section>
+
+      <section>
+        <h2>System events <span class="sub">append-only audit trail</span></h2>
+        <div class="body" id="events-body"><div class="empty">Loading…</div></div>
+      </section>
+
+      <section>
+        <h2>Integrity violations <span class="sub">must stay empty</span></h2>
+        <div class="body" id="integrity-body"><div class="empty">None recorded.</div></div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    Read-only view. Trading state is driven by candle arrival, never by HTTP.
+    <span id="foot-links"></span>
+  </footer>
+</main>
+
+<script>
+"use strict";
+const POLL_MS = 5000;
+let paused = false;
+let failures = 0;
+
+const $ = (id) => document.getElementById(id);
+
+function showBanner(msg){
+  const b = $("banner");
+  b.textContent = msg;
+  b.classList.add("show");
+}
+function hideBanner(){ $("banner").classList.remove("show"); }
+
+async function api(path){
+  const res = await fetch(path, {headers:{"accept":"application/json"}, cache:"no-store"});
+  if(!res.ok){
+    let detail = res.status + " " + res.statusText;
+    try { const j = await res.json(); if(j.detail) detail = j.detail; } catch(_) {}
+    throw new Error(path + " -> " + detail);
+  }
+  return res.json();
+}
+
+// ---------- rendering helpers ----------
+function esc(v){ return String(v ?? "—").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function shortHash(h){ return h ? h.slice(0,12) + "…" : "—"; }
+function shortId(id){ return id ? id.replace(/^([A-Z]{3}::)?/, m => m ? m : "").slice(0,18) + (id.length>18?"…":"") : "—"; }
+function ts(v){ return v ? String(v).replace("T"," ").replace(/\.\d+Z?$/,"").replace("+00:00","Z") : "—"; }
+function num(v, dp = 4){ const n = Number(v); return Number.isFinite(n) ? n.toFixed(dp) : "—"; }
+
+function card(label, value, hint, cls){
+  return `<div class="card"><div class="label">${esc(label)}</div>
+    <div class="value ${cls||""}">${esc(value)}</div>
+    <div class="hint">${esc(hint||"")}</div></div>`;
+}
+
+function renderCards(status, metrics, config){
+  const c = status.counts || {};
+  const open = (status.pipeline||{}).open_position_id;
+  const crit = status.integrity_critical_count || 0;
+  $("cards").innerHTML = [
+    card("Candles", c.candles ?? 0, (config.coverage?.first_open_time ? "first " + ts(config.coverage.first_open_time) : "awaiting phase-2 ingestor")),
+    card("Signals", c.signals ?? 0, "phase 3"),
+    card("Orders", c.orders ?? 0, `${(status.pipeline||{}).pending_orders ?? 0} pending`),
+    card("Executions", c.executions ?? 0, "paper fills only"),
+    card("Trades", c.trades ?? 0, "closed round-trips"),
+    card("Open position", open ? "1" : "0", open ? shortId(open) : "flat", open ? "pos" : ""),
+    card("Integrity (critical)", crit, crit === 0 ? "no fatal violations" : "investigate now", crit ? "neg" : ""),
+    card("Mode", status.mode, "live trading: not implemented"),
+  ].join("");
+
+  $("mode-badge").textContent = "mode: " + status.mode;
+  $("hash-badge").textContent = "cfg: " + shortHash(config.strategy_config_hash);
+  $("ready-badge").textContent = "readiness: " + (status.paper_only ? "paper" : "UNKNOWN");
+  $("ready-badge").className = "badge " + (status.paper_only ? "ok" : "bad");
+
+  const cov = config.coverage || {};
+  $("coverage").innerHTML = [
+    ["Symbol", config.settings?.symbol + " · " + config.settings?.timeframe],
+    ["Strategy", `${config.strategy?.name} v${config.strategy?.version}`],
+    ["Config hash", config.strategy_config_hash],
+    ["Candles stored", `${cov.candles ?? 0} (${cov.complete_candles ?? 0} complete)`],
+    ["First candle", ts(cov.first_open_time)],
+    ["Last candle", ts(cov.last_open_time)],
+    ["EMA / ATR", `${config.strategy?.ema_period} / ${config.strategy?.atr_period}`],
+    ["SL / TP × ATR", `${config.strategy?.atr_sl_multiplier} / ${config.strategy?.atr_tp_multiplier}`],
+    ["Fee rate", config.strategy?.fee_rate],
+  ].map(([k,v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+}
+
+function renderPipeline(status){
+  const p = status.pipeline || {};
+  const d = status.data || {};
+  $("pipeline").innerHTML = [
+    ["Last candle open", ts(d.last_candle_open_time)],
+    ["Last candle complete", d.last_candle_complete === null ? "—" : String(d.last_candle_complete)],
+    ["Last source", d.last_source ?? "—"],
+    ["Pending orders", p.pending_orders ?? 0],
+    ["Last event", p.last_event_type ?? "—"],
+    ["Last event at", ts(p.last_event_at)],
+    ["Open position id", p.open_position_id ?? "flat"],
+    ["Generated at", ts(status.generated_at)],
+  ].map(([k,v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+}
+
+function renderEvents(items){
+  if(!items.length){ $("events-body").innerHTML = '<div class="empty">No events yet.</div>'; return; }
+  $("events-body").innerHTML = `<table><thead><tr><th>time</th><th>type</th><th>entity</th></tr></thead><tbody>` +
+    items.slice(0,12).map(e => `<tr><td>${esc(ts(e.timestamp))}</td>
+      <td><span class="tag ${e.event_type.includes("FAILED")?"short":"neutral"}">${esc(e.event_type)}</span></td>
+      <td>${esc(shortId(e.entity_id || "—"))}</td></tr>`).join("") + "</tbody></table>";
+}
+
+function renderIntegrity(items){
+  if(!items.length){ $("integrity-body").innerHTML = '<div class="empty">None recorded — this is the expected state.</div>'; return; }
+  $("integrity-body").innerHTML = `<table><thead><tr><th>time</th><th>code</th><th>sev</th></tr></thead><tbody>` +
+    items.slice(0,10).map(e => `<tr><td>${esc(ts(e.detected_at))}</td><td>${esc(e.code)}</td>
+      <td><span class="tag ${e.severity==="CRITICAL"?"short":"warn"}">${esc(e.severity)}</span></td></tr>`).join("") +
+    "</tbody></table>";
+}
+
+function renderOpenPosition(items){
+  if(!items.length){ $("position-body").innerHTML = '<div class="empty">No open position.</div>'; return; }
+  const p = items[0];
+  const sideCls = p.side === "BUY" ? "long" : "short";
+  $("position-body").innerHTML = `<table><thead><tr>
+      <th>side</th><th>qty</th><th>entry</th><th>SL</th><th>TP</th><th>uPnL</th></tr></thead><tbody>
+    <tr><td><span class="tag ${sideCls}">${esc(p.side)}</span></td><td>${esc(num(p.quantity,6))}</td>
+    <td>${esc(num(p.entry_price,2))}</td><td>${esc(num(p.stop_loss,2))}</td>
+    <td>${esc(num(p.take_profit,2))}</td>
+    <td class="${Number(p.unrealized_pnl)>=0?"":"neg"}">${esc(num(p.unrealized_pnl,4))}</td></tr>
+    </tbody></table>`;
+}
+
+function renderTrades(page){
+  const items = page.items || [];
+  $("trades-sub").textContent = items.length ? `${page.meta?.returned ?? items.length} shown` : "";
+  if(!items.length){ $("trades-body").innerHTML = '<div class="empty">No closed trades yet (phase 6).</div>'; return; }
+  $("trades-body").innerHTML = `<table><thead><tr>
+      <th>exit</th><th>reason</th><th>entry</th><th>exit</th><th>net PnL</th></tr></thead><tbody>` +
+    items.slice(0,10).map(t => {
+      const cls = Number(t.net_pnl) >= 0 ? "long" : "short";
+      return `<tr><td>${esc(ts(t.exit_time))}</td>
+        <td><span class="tag ${t.exit_reason==="TP_HIT"?"long":t.exit_reason==="SL_HIT"?"short":"neutral"}">${esc(t.exit_reason)}</span></td>
+        <td>${esc(num(t.entry_price,2))}</td><td>${esc(num(t.exit_price,2))}</td>
+        <td><span class="tag ${cls}">${esc(num(t.net_pnl,4))}</span></td></tr>`;
+    }).join("") + "</tbody></table>";
+}
+
+function renderSpark(points){
+  const svg = $("spark");
+  if(!points || points.length < 2){
+    svg.innerHTML = "";
+    $("equity-empty").style.display = "block";
+    $("equity-sub").textContent = "";
+    return;
+  }
+  $("equity-empty").style.display = "none";
+  const series = points.map(p => Number(p.equity)).reverse();
+  const min = Math.min(...series), max = Math.max(...series);
+  const span = (max - min) || 1;
+  const W = 600, H = 74, pad = 6;
+  const pts = series.map((v,i) => {
+    const x = pad + (i * (W - 2*pad)) / (series.length - 1);
+    const y = H - pad - ((v - min) / span) * (H - 2*pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const up = series[series.length-1] >= series[0];
+  const color = up ? "#2fbf71" : "#ef5b5b";
+  svg.innerHTML =
+    `<polyline fill="none" stroke="${color}" stroke-width="2" points="${pts.join(" ")}"/>` +
+    `<line x1="0" y1="${H-pad}" x2="${W}" y2="${H-pad}" stroke="#1e2b3a" stroke-width="1"/>`;
+  $("equity-sub").textContent = `${series.length} snapshots · min ${min.toFixed(2)} · max ${max.toFixed(2)}`;
+}
+
+async function poll(){
+  if(paused) return;
+  try{
+    const [status, metrics, config, events, integrity, equity, position, trades] = await Promise.all([
+      api("/api/v1/status"),
+      api("/metrics"),
+      api("/api/v1/config"),
+      api("/api/v1/events?limit=12"),
+      api("/api/v1/integrity?limit=10"),
+      api("/api/v1/portfolio/equity?limit=500"),
+      api("/api/v1/positions/open"),
+      api("/api/v1/trades?limit=10"),
+    ]);
+    failures = 0;
+    hideBanner();
+    renderCards(status, metrics, config);
+    renderPipeline(status);
+    renderEvents(events.items || []);
+    renderIntegrity(integrity.items || []);
+    renderSpark(equity);
+    renderOpenPosition(position);
+    renderTrades(trades);
+    $("ver").textContent = "software " + config.software_version;
+    $("meta").textContent = `${config.settings.symbol} · ${config.settings.timeframe} · strategy ${config.strategy.name} v${config.strategy.version} · cfg ${shortHash(config.strategy_config_hash)}`;
+    $("refresh-info").textContent = "updated " + new Date().toLocaleTimeString();
+  }catch(err){
+    failures += 1;
+    showBanner("API not reachable from this context (" + err.message + "). " +
+      "Serve the app and open /dashboard — e.g. uvicorn app.main:app --port 8000, then http://127.0.0.1:8000/dashboard");
+  }
+}
+
+$("toggle").addEventListener("click", () => {
+  paused = !paused;
+  $("toggle").textContent = paused ? "resume" : "pause";
+  if(!paused) poll();
+});
+
+$("foot-links").innerHTML = ' Docs: <a href="/docs">/docs</a> · Metrics: <a href="/metrics/prometheus">/metrics/prometheus</a> · Readiness: <a href="/ready">/ready</a>';
+
+poll();
+setInterval(poll, POLL_MS);
+</script>
+</body>
+</html>
