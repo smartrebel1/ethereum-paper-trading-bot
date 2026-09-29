@@ -6,9 +6,11 @@ import random
 import time
 from datetime import UTC, datetime
 from typing import Any
+
 import httpx
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
+
 from app.config.settings import Settings
 from app.models.ai_observation import AIObservation
 from app.models.candle import Candle
@@ -17,12 +19,12 @@ from app.strategy.indicators import atr, ema
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 GEMINI_RESPONSE_SCHEMA = {
-    "type": "OBJECT",
+    "type": "object",
     "properties": {
-        "bias": {"type": "STRING", "enum": ["buy", "sell", "neutral"]},
-        "confidence": {"type": "NUMBER"},
-        "summary_ar": {"type": "STRING"},
-        "risks_ar": {"type": "STRING"},
+        "bias": {"type": "string", "enum": ["buy", "sell", "neutral"]},
+        "confidence": {"type": "number"},
+        "summary_ar": {"type": "string"},
+        "risks_ar": {"type": "string"},
     },
     "required": ["bias", "confidence", "summary_ar", "risks_ar"],
     "additionalProperties": False,
@@ -117,7 +119,15 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
         if last_response is None:
             raise last_error or RuntimeError("Gemini request failed without a response")
         assert last_response is not None
-        last_response.raise_for_status()
+        if last_response.is_error:
+            try:
+                detail = last_response.json().get("error", {}).get("message", "")
+            except Exception:
+                detail = ""
+            raise ValueError(
+                f"Gemini HTTP {last_response.status_code}: "
+                f"{detail or last_response.text[:200]}"
+            )
         raw = last_response.json()
         candidates = raw.get("candidates") or []
         if not candidates:
