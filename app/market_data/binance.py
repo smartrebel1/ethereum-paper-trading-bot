@@ -30,7 +30,7 @@ from app.market_data.base import MarketDataProvider, ProviderHealth, RawCandle
 
 logger = logging.getLogger(__name__)
 
-BINANCE_BASE_URL = "https://api.binance.com"
+BINANCE_BASE_URL = "https://data-api.binance.vision"
 KLINES_PATH = "/api/v3/klines"
 MAX_LIMIT = 1000
 
@@ -140,7 +140,7 @@ class BinanceRESTProvider(MarketDataProvider):
             raise BinanceError(f"request failed: {type(exc).__name__}: {exc}") from exc
         if response.status_code == 451:
             raise BinanceError(
-                "Binance REST returned HTTP 451 (restricted location). "
+                "Binance market-data endpoint returned HTTP 451 (restricted location). "
                 "Use the static archive instead: python scripts/fetch_binance_archive.py"
             )
         if response.status_code != 200:
