@@ -87,7 +87,6 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
-                "temperature": 0.2,
                 "responseMimeType": "application/json",
                 "responseSchema": GEMINI_RESPONSE_SCHEMA,
             },
