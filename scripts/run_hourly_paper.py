@@ -332,7 +332,7 @@ def main() -> int:
     eq = equity(state)
     peak = dec(state.get("peak_equity", state["starting_balance"]))
     state["peak_equity"] = str(max(peak, eq))
-    state["status"] = "RUNNING"
+    state["status"] = "IDLE"
     state["updated_at"] = current_at.isoformat()
     atomic_write(state)
 
