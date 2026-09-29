@@ -77,19 +77,30 @@ def observe_latest(session: Session, settings: Settings, *, refresh: bool = Fals
             "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"},
         }
         last_response = None
+        last_error: Exception | None = None
         for attempt in range(4):
-            response = httpx.post(
-                url,
-                headers={"x-goog-api-key": settings.gemini_api_key},
-                json=payload,
-                timeout=settings.ai_timeout_seconds,
-            )
-            last_response = response
-            if response.status_code not in {408, 429, 500, 502, 503, 504} or attempt == 3:
-                break
-            delay = min(8.0, 1.0 * (2 ** attempt)) + random.uniform(0, 0.5)
-            print(f"Gemini transient HTTP {response.status_code}; retrying in {delay:.1f}s ({attempt + 1}/3)")
-            time.sleep(delay)
+            try:
+                response = httpx.post(
+                    url,
+                    headers={"x-goog-api-key": settings.gemini_api_key},
+                    json=payload,
+                    timeout=max(30.0, settings.ai_timeout_seconds),
+                )
+                last_response = response
+                if response.status_code not in {408, 429, 500, 502, 503, 504} or attempt == 3:
+                    break
+                delay = min(8.0, 1.0 * (2 ** attempt)) + random.uniform(0, 0.5)
+                print(f"Gemini transient HTTP {response.status_code}; retrying in {delay:.1f}s ({attempt + 1}/3)")
+                time.sleep(delay)
+            except httpx.RequestError as exc:
+                last_error = exc
+                if attempt == 3:
+                    break
+                delay = min(8.0, 1.0 * (2 ** attempt)) + random.uniform(0, 0.5)
+                print(f"Gemini network error; retrying in {delay:.1f}s ({attempt + 1}/3)")
+                time.sleep(delay)
+        if last_response is None:
+            raise last_error or RuntimeError("Gemini request failed without a response")
         assert last_response is not None
         last_response.raise_for_status()
         raw = last_response.json()
