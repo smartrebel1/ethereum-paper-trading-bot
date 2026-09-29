@@ -27,7 +27,6 @@ if str(ROOT) not in os.sys.path:
 
 from app.common.enums import Side  # noqa: E402
 from app.common.safety import enforce_paper_only  # noqa: E402
-from app.common.time_utils import next_open_time  # noqa: E402
 from app.config.settings import get_settings  # noqa: E402
 from app.config.strategy_config import load_frozen_strategy_config  # noqa: E402
 from app.market_data.binance import BinanceRESTProvider  # noqa: E402
