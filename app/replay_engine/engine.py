@@ -160,15 +160,36 @@ class ReplayEngine:
         self.progress = progress
 
     # -------------------------------------------------------------------- run
-    def run(self, candles: Sequence[Candle], *, session: Session | None = None) -> ReplayResult:
-        """Replay ``candles`` (ascending, closed). Uses its own transaction if needed."""
+    def run(
+        self,
+        candles: Sequence[Candle],
+        *,
+        session: Session | None = None,
+        process_from: int = 0,
+    ) -> ReplayResult:
+        """Replay closed candles.
+
+        ``process_from`` supports the live paper scheduler: the leading candles
+        are used only to rebuild the strategy warm-up window, while execution
+        and decision-making start at that zero-based index. This keeps the
+        incremental path on the exact same strategy/risk/execution code as
+        historical replay.
+        """
+        if process_from < 0 or process_from > len(candles):
+            raise ValueError("process_from must be between 0 and len(candles)")
         if session is not None:
-            return self._run(candles, session)
+            return self._run(candles, session, process_from=process_from)
         with session_scope() as scoped:
-            return self._run(candles, scoped)
+            return self._run(candles, scoped, process_from=process_from)
 
     # ------------------------------------------------------------------- internals
-    def _run(self, candles: Sequence[Candle], session: Session) -> ReplayResult:
+    def _run(
+        self,
+        candles: Sequence[Candle],
+        session: Session,
+        *,
+        process_from: int = 0,
+    ) -> ReplayResult:
         result = ReplayResult()
         strategy = EMAAtrStrategy(self.config)
         window: list[Candle] = []
@@ -190,8 +211,13 @@ class ReplayEngine:
 
         total = len(candles)
         for index, candle in enumerate(candles, start=1):
-            # Deterministic time: every timestamp written while processing this
-            # candle is derived from the candle itself, never from the wall clock.
+            # The leading warm-up window is intentionally read-only. It rebuilds
+            # strategy state without replaying historical side effects.
+            if index <= process_from:
+                window.append(candle)
+                continue
+
+            # Deterministic time: every timestamp written while processing this            # candle is derived from the candle itself, never from the wall clock.
             clock = FrozenClock(candle.close_time)
             execution = PaperExecutionEngine(
                 session,
