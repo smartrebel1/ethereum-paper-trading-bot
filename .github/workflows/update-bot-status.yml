@@ -1,13 +1,15 @@
-name: Hourly Paper Trading
+name: Update Bot Status
 
 on:
   push:
     branches: ["main"]
     paths-ignore:
       - "BOT_STATUS.md"
+      - "runtime/hourly_paper_state.json"
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
+      timezone: "Africa/Cairo"
 
 permissions:
   contents: write
@@ -31,23 +33,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+
       - name: Install project
         run: python -m pip install --upgrade pip && pip install .
-      - name: Build status from Binance public market data
+
+      - name: Run hourly live-paper cycle
+        run: python scripts/run_hourly_paper_cycle.py
+
+      - name: Build BOT_STATUS from public market data
         run: python scripts/update_bot_status.py
-      - name: Commit BOT_STATUS.md
+
+      - name: Commit hourly state and BOT_STATUS
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add BOT_STATUS.md
+          git add -f runtime/hourly_paper_state.json
           if git diff --cached --quiet; then
-            echo "Status did not change."
+            echo "Status/state did not change."
           else
-            git commit -m "Update BOT_STATUS"
+            git commit -m "Update hourly paper trading state"
             git push
           fi
