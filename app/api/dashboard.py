@@ -96,8 +96,12 @@ def live_paper_page() -> HTMLResponse:
             ["آخر شمعة 4H",s.last_closed_4h||"—"],
             ["آخر تحديث",s.updated_at||"—"]
           ];
-          el.innerHTML="<div class='grid'>"+cards.map(x=>"<div class='card'><div class='label'>"+x[0]+"</div><div class='value'>"+x[1]+"</div></div>").join("")+"</div>"+
-            "<div class='card' style='margin-top:10px'><pre>"+JSON.stringify(s.last_signal||{},null,2)+"</pre></div>";
+          el.innerHTML=
+            "<div class='grid'>"+
+            cards.map(x=>"<div class='card'><div class='label'>"+x[0]+"</div><div class='value'>"+x[1]+"</div></div>").join("")+
+            "</div><div class='card' style='margin-top:10px'><pre>"+
+            JSON.stringify(s.last_signal||{},null,2)+
+            "</pre></div>";
         }catch(e){el.innerHTML="<div class='card'>تعذر قراءة الحالة: "+e+"</div>"}
       }
       refresh(); setInterval(refresh,2000);
