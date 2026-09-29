@@ -7,12 +7,10 @@ same ReplayEngine incrementally. No exchange trading endpoint is ever called.
 
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 import time
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import select
