@@ -80,8 +80,8 @@ button {
   padding: 8px 16px; font-size: 15px; cursor: pointer; font-family: inherit;
 }
 .foot { margin-top: 26px; color: #6f8399; font-size: 13px; text-align: center; }
-.refresh-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; color:var(--muted); font-size:14px; }
-.chart-wrap { margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--card-2); }\n.chart-wrap svg { display:block; width:100%; height:auto; }\n.chart-caption { color:var(--muted); font-size:13px; margin-top:6px; }\n.refresh-dot { width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--green); margin-left:6px; }
+.refresh-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; color:var(--muted); font-size:14px; }  # noqa: E501
+.chart-wrap { margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--card-2); }\n.chart-wrap svg { display:block; width:100%; height:auto; }\n.chart-caption { color:var(--muted); font-size:13px; margin-top:6px; }\n.refresh-dot { width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--green); margin-left:6px; }  # noqa: E501
 code { background: var(--card-2); padding: 2px 6px; border-radius: 6px; font-size: 14px; }
 """
 
