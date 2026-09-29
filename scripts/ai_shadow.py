@@ -42,9 +42,13 @@ def main() -> int:
 
     if args.check:
         import httpx
-        response = httpx.get(
+        response = httpx.post(
             GEMINI_URL.format(model=settings.gemini_model),
-            params={"key": settings.gemini_api_key},
+            headers={"x-goog-api-key": settings.gemini_api_key},
+            json={
+                "contents": [{"parts": [{"text": "Return JSON: {\\\"ok\\\":true}"}]}],
+                "generationConfig": {"temperature": 0},
+            },
             timeout=settings.ai_timeout_seconds,
         )
         if response.is_success:
