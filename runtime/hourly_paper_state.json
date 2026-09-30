@@ -5,20 +5,20 @@
   "cash": "200",
   "position": null,
   "trades": [],
-  "last_processed_4h": "2026-09-30T08:00:00+00:00",
+  "last_processed_4h": "2026-09-30T16:00:00+00:00",
   "last_signal": {
-    "candle_open_time": "2026-09-30T08:00:00+00:00",
+    "candle_open_time": "2026-09-30T16:00:00+00:00",
     "action": "HOLD",
-    "confidence": "0.58707765",
-    "reason": "confidence 0.58707765 below minimum",
+    "confidence": "0.56610596",
+    "reason": "confidence 0.56610596 below minimum",
     "suppressed_reason": "MIN_CONFIDENCE",
-    "atr": "34.95583139",
-    "evaluated_at": "2026-09-30T15:55:25.717312+00:00"
+    "atr": "36.96431196",
+    "evaluated_at": "2026-09-30T20:49:04.206319+00:00"
   },
-  "last_price": "2684.17000000",
-  "last_price_at": "2026-09-30T15:55:25.716010+00:00",
+  "last_price": "2680.81000000",
+  "last_price_at": "2026-09-30T20:49:04.204699+00:00",
   "peak_equity": "200",
   "status": "IDLE",
-  "updated_at": "2026-09-30T15:55:25.716010+00:00",
+  "updated_at": "2026-09-30T20:49:04.204699+00:00",
   "last_error": null
 }
