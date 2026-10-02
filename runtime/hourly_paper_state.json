@@ -20,23 +20,20 @@
       "signal_confidence": "0.60325439"
     }
   ],
-  "last_processed_4h": "2026-10-02T12:00:00+00:00",
+  "last_processed_4h": "2026-10-02T16:00:00+00:00",
   "last_signal": {
-    "candle_open_time": "2026-10-02T04:00:00+00:00",
-    "action": "BUY",
-    "confidence": "0.60325439",
-    "reason": "close 2737.29 above EMA200 2559.5272602 with rising slope and confidence 0.60325439",
-    "suppressed_reason": null,
-    "atr": "34.60502318",
-    "evaluated_at": "2026-10-02T13:51:57.644814+00:00",
-    "entry_price": "2737.29000000",
-    "entry_at": "2026-10-02T08:00:00+00:00",
-    "execution_mode": "TARGET_CANDLE_OPEN"
+    "candle_open_time": "2026-10-02T16:00:00+00:00",
+    "action": "HOLD",
+    "confidence": "0.55395220",
+    "reason": "confidence 0.5539522 below minimum",
+    "suppressed_reason": "MIN_CONFIDENCE",
+    "atr": "39.18832645",
+    "evaluated_at": "2026-10-02T23:47:18.900391+00:00"
   },
-  "last_price": "2657.68000000",
-  "last_price_at": "2026-10-02T19:18:14.573770+00:00",
+  "last_price": "2669.69000000",
+  "last_price_at": "2026-10-02T23:47:18.899028+00:00",
   "peak_equity": "200.05839473926000000",
   "status": "IDLE",
-  "updated_at": "2026-10-02T19:18:14.573770+00:00",
+  "updated_at": "2026-10-02T23:47:18.899028+00:00",
   "last_error": null
 }
