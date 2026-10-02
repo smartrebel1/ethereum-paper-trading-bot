@@ -2,20 +2,25 @@
   "version": 1,
   "symbol": "ETHUSDT",
   "starting_balance": "200",
-  "cash": "179.98136061926000000",
-  "position": {
-    "quantity": "0.007306",
-    "entry_price": "2737.29000000",
-    "entry_fee": "0.01999864074000000",
-    "fee_rate": "0.001",
-    "stop_loss": "2685.38246523",
-    "take_profit": "2841.10506954",
-    "signal_candle_open_time": "2026-10-02T08:00:00+00:00",
-    "signal_confidence": "0.60325439",
-    "opened_at": "2026-10-02T12:00:00+00:00"
-  },
-  "trades": [],
-  "last_processed_4h": "2026-10-02T08:00:00+00:00",
+  "cash": "199.58114550593940962",
+  "position": null,
+  "trades": [
+    {
+      "entry_price": "2737.29000000",
+      "exit_price": "2685.38246523",
+      "quantity": "0.007306",
+      "entry_fee": "0.01999864074000000",
+      "exit_fee": "0.01961940429097038",
+      "gross_pnl": "-0.37923644902962",
+      "net_pnl": "-0.41885449406059038",
+      "exit_reason": "LIVE_PRICE_SL",
+      "entry_at": "2026-10-02T12:00:00+00:00",
+      "exit_at": "2026-10-02T19:18:14.573770+00:00",
+      "signal_candle_open_time": "2026-10-02T08:00:00+00:00",
+      "signal_confidence": "0.60325439"
+    }
+  ],
+  "last_processed_4h": "2026-10-02T12:00:00+00:00",
   "last_signal": {
     "candle_open_time": "2026-10-02T04:00:00+00:00",
     "action": "BUY",
@@ -28,10 +33,10 @@
     "entry_at": "2026-10-02T08:00:00+00:00",
     "execution_mode": "TARGET_CANDLE_OPEN"
   },
-  "last_price": "2748.02000000",
-  "last_price_at": "2026-10-02T13:51:57.643832+00:00",
+  "last_price": "2657.68000000",
+  "last_price_at": "2026-10-02T19:18:14.573770+00:00",
   "peak_equity": "200.05839473926000000",
   "status": "IDLE",
-  "updated_at": "2026-10-02T13:51:57.643832+00:00",
+  "updated_at": "2026-10-02T19:18:14.573770+00:00",
   "last_error": null
 }
