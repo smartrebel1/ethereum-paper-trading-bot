@@ -2,8 +2,18 @@
   "version": 1,
   "symbol": "ETHUSDT",
   "starting_balance": "200",
-  "cash": "199.58114550593940962",
-  "position": null,
+  "cash": "179.60271353243940962",
+  "position": {
+    "quantity": "0.007377",
+    "entry_price": "2705.50000000",
+    "entry_fee": "0.01995847350000000",
+    "fee_rate": "0.001",
+    "stop_loss": "2666.74431310",
+    "take_profit": "2783.01137380",
+    "signal_candle_open_time": "2026-10-04T04:00:00+00:00",
+    "signal_confidence": "0.60297397",
+    "opened_at": "2026-10-04T08:00:00+00:00"
+  },
   "trades": [
     {
       "entry_price": "2737.29000000",
@@ -20,20 +30,23 @@
       "signal_confidence": "0.60325439"
     }
   ],
-  "last_processed_4h": "2026-10-03T20:00:00+00:00",
+  "last_processed_4h": "2026-10-04T04:00:00+00:00",
   "last_signal": {
-    "candle_open_time": "2026-10-03T20:00:00+00:00",
-    "action": "HOLD",
-    "confidence": "0.58406068",
-    "reason": "confidence 0.58406068 below minimum",
-    "suppressed_reason": "MIN_CONFIDENCE",
-    "atr": "27.82246400",
-    "evaluated_at": "2026-10-04T02:39:37.732073+00:00"
+    "candle_open_time": "2026-10-04T04:00:00+00:00",
+    "action": "BUY",
+    "confidence": "0.60297397",
+    "reason": "close 2705.56 above EMA200 2573.19757562 with rising slope and confidence 0.60297397",
+    "suppressed_reason": null,
+    "atr": "25.83712460",
+    "evaluated_at": "2026-10-04T09:47:23.953876+00:00",
+    "entry_price": "2705.50000000",
+    "entry_at": "2026-10-04T09:47:23.952985+00:00",
+    "execution_mode": "CURRENT_PRICE_DELAYED"
   },
-  "last_price": "2693.22000000",
-  "last_price_at": "2026-10-04T02:39:37.731079+00:00",
+  "last_price": "2705.50000000",
+  "last_price_at": "2026-10-04T09:47:23.952985+00:00",
   "peak_equity": "200.05839473926000000",
   "status": "IDLE",
-  "updated_at": "2026-10-04T02:39:37.731079+00:00",
+  "updated_at": "2026-10-04T09:47:23.952985+00:00",
   "last_error": null
 }
