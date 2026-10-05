@@ -30,7 +30,7 @@
       "signal_confidence": "0.60325439"
     }
   ],
-  "last_processed_4h": "2026-10-04T20:00:00+00:00",
+  "last_processed_4h": "2026-10-05T04:00:00+00:00",
   "last_signal": {
     "candle_open_time": "2026-10-04T04:00:00+00:00",
     "action": "BUY",
@@ -43,10 +43,10 @@
     "entry_at": "2026-10-04T09:47:23.952985+00:00",
     "execution_mode": "CURRENT_PRICE_DELAYED"
   },
-  "last_price": "2727.52000000",
-  "last_price_at": "2026-10-05T02:01:05.540482+00:00",
+  "last_price": "2720.75000000",
+  "last_price_at": "2026-10-05T09:04:09.144835+00:00",
   "peak_equity": "200.05839473926000000",
   "status": "IDLE",
-  "updated_at": "2026-10-05T02:01:05.540482+00:00",
+  "updated_at": "2026-10-05T09:04:09.144835+00:00",
   "last_error": null
 }
