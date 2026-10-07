@@ -2,18 +2,8 @@
   "version": 1,
   "symbol": "ETHUSDT",
   "starting_balance": "200",
-  "cash": "179.60271353243940962",
-  "position": {
-    "quantity": "0.007377",
-    "entry_price": "2705.50000000",
-    "entry_fee": "0.01995847350000000",
-    "fee_rate": "0.001",
-    "stop_loss": "2666.74431310",
-    "take_profit": "2783.01137380",
-    "signal_candle_open_time": "2026-10-04T04:00:00+00:00",
-    "signal_confidence": "0.60297397",
-    "opened_at": "2026-10-04T08:00:00+00:00"
-  },
+  "cash": "199.25561375738037092",
+  "position": null,
   "trades": [
     {
       "entry_price": "2737.29000000",
@@ -28,25 +18,36 @@
       "exit_at": "2026-10-02T19:18:14.573770+00:00",
       "signal_candle_open_time": "2026-10-02T08:00:00+00:00",
       "signal_confidence": "0.60325439"
+    },
+    {
+      "entry_price": "2705.50000000",
+      "exit_price": "2666.74431310",
+      "quantity": "0.007377",
+      "entry_fee": "0.01995847350000000",
+      "exit_fee": "0.01967257279773870",
+      "gross_pnl": "-0.28590070226130",
+      "net_pnl": "-0.32553174855903870",
+      "exit_reason": "SL_HIT",
+      "entry_at": "2026-10-04T08:00:00+00:00",
+      "exit_at": "2026-10-07T00:00:00+00:00",
+      "signal_candle_open_time": "2026-10-04T04:00:00+00:00",
+      "signal_confidence": "0.60297397"
     }
   ],
-  "last_processed_4h": "2026-10-06T20:00:00+00:00",
+  "last_processed_4h": "2026-10-07T00:00:00+00:00",
   "last_signal": {
-    "candle_open_time": "2026-10-04T04:00:00+00:00",
-    "action": "BUY",
-    "confidence": "0.60297397",
-    "reason": "close 2705.56 above EMA200 2573.19757562 with rising slope and confidence 0.60297397",
-    "suppressed_reason": null,
-    "atr": "25.83712460",
-    "evaluated_at": "2026-10-04T09:47:23.953876+00:00",
-    "entry_price": "2705.50000000",
-    "entry_at": "2026-10-04T09:47:23.952985+00:00",
-    "execution_mode": "CURRENT_PRICE_DELAYED"
+    "candle_open_time": "2026-10-07T00:00:00+00:00",
+    "action": "HOLD",
+    "confidence": "0.18046721",
+    "reason": "confidence 0.18046721 below minimum",
+    "suppressed_reason": "MIN_CONFIDENCE",
+    "atr": "30.10909777",
+    "evaluated_at": "2026-10-07T07:14:45.181645+00:00"
   },
-  "last_price": "2697.04000000",
-  "last_price_at": "2026-10-07T00:42:29.091630+00:00",
+  "last_price": "2618.49000000",
+  "last_price_at": "2026-10-07T07:14:45.180209+00:00",
   "peak_equity": "200.05839473926000000",
   "status": "IDLE",
-  "updated_at": "2026-10-07T00:42:29.091630+00:00",
+  "updated_at": "2026-10-07T07:14:45.180209+00:00",
   "last_error": null
 }
