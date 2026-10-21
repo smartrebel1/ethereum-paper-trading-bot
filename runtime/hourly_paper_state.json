@@ -34,20 +34,20 @@
       "signal_confidence": "0.60297397"
     }
   ],
-  "last_processed_4h": "2026-10-20T20:00:00+00:00",
+  "last_processed_4h": "2026-10-21T00:00:00+00:00",
   "last_signal": {
-    "candle_open_time": "2026-10-20T20:00:00+00:00",
+    "candle_open_time": "2026-10-21T00:00:00+00:00",
     "action": "HOLD",
-    "confidence": "0.57441320",
+    "confidence": "0.57920738",
     "reason": "close at or below EMA",
     "suppressed_reason": "TREND_FILTER",
-    "atr": "38.23235971",
-    "evaluated_at": "2026-10-21T01:35:38.818673+00:00"
+    "atr": "37.12290476",
+    "evaluated_at": "2026-10-21T07:39:34.783827+00:00"
   },
-  "last_price": "2454.00000000",
-  "last_price_at": "2026-10-21T01:35:38.817924+00:00",
+  "last_price": "2451.77000000",
+  "last_price_at": "2026-10-21T07:39:34.782479+00:00",
   "peak_equity": "200.05839473926000000",
   "status": "IDLE",
-  "updated_at": "2026-10-21T01:35:38.817924+00:00",
+  "updated_at": "2026-10-21T07:39:34.782479+00:00",
   "last_error": null
 }
