@@ -17,6 +17,6 @@
   "trades": [],
   "status": "STOPPED",
   "connected_at": null,
-  "updated_at": "2026-10-23T10:42:35.136255+00:00",
+  "updated_at": "2026-10-23T15:40:30.570377+00:00",
   "last_error": "InvalidStatus: server rejected WebSocket connection: HTTP 451"
 }
